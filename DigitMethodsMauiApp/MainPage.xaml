@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="DigitMethodsMauiApp.MainPage"
+             Shell.BackgroundColor="LightGray">
+
+    <Shell.TitleView>
+        <HorizontalStackLayout VerticalOptions="Fill">
+            <Label
+                Text="Welcome to MAUI"
+                
+                FontFamily="Strande2"
+                TextColor="White"
+                VerticalTextAlignment="Center"
+                VerticalOptions="Center"
+                HeightRequest="50"
+                FontSize="Medium" />
+            <Entry 
+                x:Name="Entry_Variant" 
+                Placeholder="9" 
+                TextColor="Black"
+                PlaceholderColor="Black"
+                Keyboard="Numeric" 
+                MaxLength="2"
+                TextChanged="Entry_Code_TextChanged"
+                VerticalOptions="Center"/>
+        </HorizontalStackLayout>
+    </Shell.TitleView>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <Label Grid.Row="0" x:Name="Label_CurrentNum" FontSize="Large" FontAttributes="Bold" VerticalOptions="Start"></Label>
+
+        <ScrollView Grid.Row="1" VerticalOptions="Fill">
+            <VerticalStackLayout VerticalOptions="Fill"
+                x:Name="VerticalStackLayout_NumberInfo">
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Label Grid.Row="2" FontSize="Large" Padding="0,16,0,16" Text="Вывод консоли:"></Label>
+
+        <ScrollView Grid.Row="3" VerticalOptions="Fill">
+            <VerticalStackLayout VerticalOptions="Fill"
+        x:Name="VerticalStackLayout_NumberItems">
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <ScrollView Grid.Row="4" Orientation="Horizontal" VerticalOptions="End">
+            <HorizontalStackLayout x:Name="HorizontalStackLayout_Buttons"></HorizontalStackLayout>
+        </ScrollView>
+    </Grid>
+
+</ContentPage>
