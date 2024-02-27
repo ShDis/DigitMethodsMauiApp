@@ -2,58 +2,146 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="DigitMethodsMauiApp.MainPage"
-             Shell.BackgroundColor="LightGray">
+             Shell.NavBarIsVisible="False" 
+             xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
+             xmlns:foldable="clr-namespace:Microsoft.Maui.Controls.Foldable;assembly=Microsoft.Maui.Controls.Foldable"
+             xmlns:oxy="clr-namespace:OxyPlot.Maui.Skia;assembly=OxyPlot.Maui.Skia">
+    <ContentPage.Behaviors>
+        <mct:StatusBarBehavior x:Name="StatusBarBehavior" StatusBarColor="LightGray" />
+    </ContentPage.Behaviors>
 
-    <Shell.TitleView>
-        <HorizontalStackLayout VerticalOptions="Fill">
-            <Label
-                Text="Welcome to MAUI"
-                
-                FontFamily="Strande2"
-                TextColor="White"
-                VerticalTextAlignment="Center"
-                VerticalOptions="Center"
-                HeightRequest="50"
-                FontSize="Medium" />
-            <Entry 
-                x:Name="Entry_Variant" 
-                Placeholder="9" 
-                TextColor="Black"
-                PlaceholderColor="Black"
-                Keyboard="Numeric" 
-                MaxLength="2"
-                TextChanged="Entry_Code_TextChanged"
-                VerticalOptions="Center"/>
-        </HorizontalStackLayout>
-    </Shell.TitleView>
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="*"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="*"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-        </Grid.RowDefinitions>
+    <foldable:TwoPaneView x:Name="twoPaneView" WideModeConfiguration="LeftRight" Pane1Length="*" Pane2Length="0">
 
-        <Label Grid.Row="0" x:Name="Label_CurrentNum" FontSize="Large" FontAttributes="Bold" VerticalOptions="Start"></Label>
+        <foldable:TwoPaneView.Pane1 BackgroundColor="Wheat">
 
-        <ScrollView Grid.Row="1" VerticalOptions="Fill">
-            <VerticalStackLayout VerticalOptions="Fill"
-                x:Name="VerticalStackLayout_NumberInfo">
-            </VerticalStackLayout>
-        </ScrollView>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                </Grid.RowDefinitions>
 
-        <Label Grid.Row="2" FontSize="Large" Padding="0,16,0,16" Text="Вывод консоли:"></Label>
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
 
-        <ScrollView Grid.Row="3" VerticalOptions="Fill">
-            <VerticalStackLayout VerticalOptions="Fill"
-        x:Name="VerticalStackLayout_NumberItems">
-            </VerticalStackLayout>
-        </ScrollView>
+                    <Label 
+                        Grid.Column="0" 
+                        x:Name="Label_CurrentNum" 
+                        FontSize="Large" 
+                        FontAttributes="Bold"
+                        Margin="4"
+                        VerticalOptions="Start">
+                    </Label>
 
-        <ScrollView Grid.Row="4" Orientation="Horizontal" VerticalOptions="End">
-            <HorizontalStackLayout x:Name="HorizontalStackLayout_Buttons"></HorizontalStackLayout>
-        </ScrollView>
-    </Grid>
+                    <HorizontalStackLayout Grid.Column="1" HorizontalOptions="Center" VerticalOptions="Center">
+                        <Label Text="Вариант" FontSize="Small" VerticalOptions="Center"></Label>
+                        <Entry 
+                            x:Name="Entry_Variant" 
+                            Text="9"
+                            Placeholder="" 
+                            TextColor="Black"
+                            PlaceholderColor="Black"
+                            Keyboard="Numeric" 
+                            MaxLength="2"
+                            VerticalOptions="Center"
+                            HorizontalOptions="Center">
+                        </Entry>
+                        <Label Text="eps" FontSize="Small" VerticalOptions="Center"></Label>
+                        <Entry 
+                            x:Name="Entry_Eps" 
+                            Completed="Entry_Eps_Completed"
+                            Text="0.001"
+                            Placeholder="" 
+                            TextColor="Black"
+                            PlaceholderColor="Black"
+                            Keyboard="Numeric" 
+                            VerticalOptions="Center"
+                            HorizontalOptions="Center">
+                        </Entry>
+                        <Label Text="n" FontSize="Small" VerticalOptions="Center"></Label>
+                        <Entry 
+                            x:Name="Entry_Fixedn" 
+                            Completed="Entry_Fixedn_Completed"
+                            Text="10"
+                            Placeholder="" 
+                            TextColor="Black"
+                            PlaceholderColor="Black"
+                            Keyboard="Numeric" 
+                            VerticalOptions="Center"
+                            HorizontalOptions="Center">
+                        </Entry>
+                    </HorizontalStackLayout>
 
+                    <Button 
+                        Grid.Column="2" 
+                        Text="Графики" 
+                        x:Name="Button_Plot"
+                        Clicked="Button_Plot_Clicked">
+                    </Button>
+                </Grid>
+
+                <ScrollView Grid.Row="1" VerticalOptions="Fill">
+                    <VerticalStackLayout VerticalOptions="Fill"
+                        x:Name="VerticalStackLayout_NumberInfo">
+                    </VerticalStackLayout>
+                </ScrollView>
+
+                <Label Grid.Row="2" FontSize="Large" Padding="0,16,0,16" Text="Вывод консоли:"></Label>
+
+                <ScrollView Grid.Row="3" VerticalOptions="Fill">
+                    <VerticalStackLayout VerticalOptions="Fill"
+                        x:Name="VerticalStackLayout_NumberItems">
+                    </VerticalStackLayout>
+                </ScrollView>
+
+                <ScrollView Grid.Row="4" Orientation="Horizontal" VerticalOptions="End">
+                    <HorizontalStackLayout x:Name="HorizontalStackLayout_Buttons"></HorizontalStackLayout>
+                </ScrollView>
+            </Grid>
+        </foldable:TwoPaneView.Pane1>
+        <foldable:TwoPaneView.Pane2>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Button 
+                        Grid.Column="0" 
+                        Text="Задача" 
+                        x:Name="Button_Task"
+                        Clicked="Button_Task_Clicked">
+                    </Button>
+                    <Label 
+                        Grid.Column="1" 
+                        x:Name="Label_CurrentNumCode" 
+                        FontSize="Large" 
+                        FontAttributes="Bold" 
+                        VerticalOptions="Center"
+                        Margin="4"
+                        HorizontalOptions="Fill"
+                        HorizontalTextAlignment="End">
+                    </Label>
+                </Grid>
+
+                <oxy:PlotView Grid.Row="1" x:Name="OxyPlotView_Main" VerticalOptions="Fill" HorizontalOptions="Fill"/>
+
+                <ScrollView IsVisible="False">
+                    <VerticalStackLayout VerticalOptions="Fill" HorizontalOptions="Fill">
+                        <Label x:Name="Label_Code" HorizontalOptions="Fill" VerticalOptions="Fill" Text="test"/>
+                    </VerticalStackLayout>
+                </ScrollView>
+            </Grid>
+        </foldable:TwoPaneView.Pane2>
+    </foldable:TwoPaneView>
 </ContentPage>

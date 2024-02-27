@@ -1,4 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using CommunityToolkit.Maui;
+using Microsoft.Extensions.Logging;
+using Microsoft.Maui.Foldable;
+using OxyPlot.Maui.Skia;
+using SkiaSharp.Views.Maui.Controls.Hosting;
 
 namespace DigitMethodsMauiApp
 {
@@ -15,8 +19,15 @@ namespace DigitMethodsMauiApp
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
+            // Initialise the .NET MAUI Community Toolkit
+            builder.UseMauiApp<App>().UseMauiCommunityToolkit();
+            // Init TwoPaneView
+            builder.UseFoldable();
+            // Init Plots
+            builder.UseSkiaSharp();
+            builder.UseOxyPlotSkia();
 #if DEBUG
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
 
             return builder.Build();
