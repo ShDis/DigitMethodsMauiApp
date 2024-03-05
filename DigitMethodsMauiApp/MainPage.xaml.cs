@@ -1,6 +1,7 @@
 ﻿using DigitMethodsMauiApp.Numbers;
 using OxyPlot;
 using OxyPlot.Series;
+using AutoDiff;
 
 namespace DigitMethodsMauiApp
 {
@@ -17,9 +18,13 @@ namespace DigitMethodsMauiApp
         private List<Number6> numbers = new List<Number6>()
         {
             new I_I(),
+            new I_I_2(),
             new I_II(),
+            new I_II_2(),
             new I_III(),
+            new I_III_2(),
             new I_IV(),
+            new I_IV_2(),
             new I_V(),
             new I_VI(),
             new I_VII(),
@@ -30,7 +35,7 @@ namespace DigitMethodsMauiApp
 
         public PlotModel plotModel { get; set; } = new PlotModel() { Title = "Экспериментальный график" };
 
-        public void AddFuncToPlotModel(string title, Func<double,double> f, double from, double to, double dx)
+        public void AddFuncToPlotModel(string title, Func<double, double> f, double from, double to, double dx)
         {
             plotModel.Series.Add(new FunctionSeries(f, from, to, dx));
         }
@@ -145,7 +150,7 @@ namespace DigitMethodsMauiApp
 
     public class I_I : Number61
     {
-        
+
         public I_I()
         {
             this.Num = "6.1.1";
@@ -183,7 +188,7 @@ namespace DigitMethodsMauiApp
 
         public int GetN()
         {
-            double approxh = Math.Pow((24.0 * eps) / ((b - a) * M2), 0.5);
+            double approxh = Math.Pow((24.0 * eps) / ((b - a) * M2), 1.0 / 2.0);
             int n = (int)Math.Ceiling((b - a) / approxh);
             return n;
         }
@@ -197,6 +202,79 @@ namespace DigitMethodsMauiApp
             double h = (b - a) / n;
             double sum = f(a);
 
+            for (int i = 1; i < n; i++)
+            {
+                double xi = a + (i - 0.5) * h; // вычисление i-го узла
+                double fxi = f(xi); // вычисление значения функции в узле xi
+                sum += fxi; // добавление значения функции к сумме
+            }
+            double I = h * sum;
+            return I;
+        }
+
+        public override List<FunctionSeries> GetFunctionsToShow()
+        {
+            return new List<FunctionSeries>()
+            {
+                new FunctionSeries(f,a,b,0.1,"f(x)"),
+                new FunctionSeries(f,a,b,fixedn,"f(x)"),
+                new FunctionSeries(f,a,b,0.1,"f'(x)"),
+                new FunctionSeries(f_double_prime,a,b,0.1,"f''(x)"),
+                new FunctionSeries(f_fourth_prime,a,b,0.1,"f''''(x)"),
+            };
+        }
+    }
+
+    public class I_I_2 : Number61
+    {
+
+        public I_I_2()
+        {
+            this.Num = "6.1.1 (v2)";
+            this.UI_StartInfo = new object[]
+            {
+                new Image()
+                {
+                    Source = ImageSource.FromFile("n6_1.png"),
+                },
+                new Label {
+                    Text = "Определите число узлов для нахождения значения интеграла с точностью = 10^-3 по формулам прямоугольников. Вычислите с данной точностью.",
+                    FontAttributes = FontAttributes.Bold,
+                },
+                new Label {
+                    Text = $"a = {a}, b = {b}",
+                    FontAttributes = FontAttributes.None,
+                },
+            };
+        }
+
+        public override string[] Execute()
+        {
+            List<string> consoleStack = new List<string>();
+            double ideal = 0.4244010922027635;
+
+            int n = 2;
+            double delta = 1.0;
+            while (delta > eps)
+            {
+                double res1 = Count(n);
+                n *= 2;
+                double res2 = Count(n);
+                delta = Math.Abs(res1 - res2);
+                consoleStack.Add($"n = {n} => delta = {delta}:");
+                consoleStack.Add($"I = {res2 + delta}");
+                consoleStack.Add("");
+            }
+
+            consoleStack.Add($"Идеал ~E-15:");
+            consoleStack.Add($"I = {ideal}");
+            return consoleStack.ToArray();
+        }
+
+        public double Count(int n)
+        {
+            double h = (b - a) / n;
+            double sum = f(a);
             for (int i = 1; i < n; i++)
             {
                 double xi = a + (i - 0.5) * h; // вычисление i-го узла
@@ -243,7 +321,7 @@ namespace DigitMethodsMauiApp
         }
         public int GetN()
         {
-            double approxh = Math.Pow((12.0 * eps) / ((b - a) * M2), 0.5);
+            double approxh = Math.Pow((12.0 * eps) / ((b - a) * M2), 1.0 / 2.0);
             int n = (int)Math.Ceiling((b - a) / approxh);
             return n;
         }
@@ -296,6 +374,81 @@ namespace DigitMethodsMauiApp
             };
         }
     }
+
+    public class I_II_2 : Number61
+    {
+        public I_II_2()
+        {
+            this.Num = "6.1.2 (v2)";
+            this.UI_StartInfo = new object[]
+            {
+                new Image()
+                {
+                    Source = ImageSource.FromFile("n6_1.png"),
+                },
+                new Label {
+                    Text = "Определите число узлов для нахождения значения интеграла с точностью = 10^-3 по формулам трапеций. Вычислите с данной точностью." ,
+                    FontAttributes = FontAttributes.Bold,
+                },
+                new Label {
+                    Text = $"a = {a}, b = {b}",
+                    FontAttributes = FontAttributes.None,
+                },
+            };
+        }
+
+        public override string[] Execute()
+        {
+            List<string> consoleStack = new List<string>();
+            double ideal = 0.4244010922027635;
+
+            int n = 2;
+            double delta = 1.0;
+            while (delta > eps)
+            {
+                double res1 = Count(n);
+                n *= 2;
+                double res2 = Count(n);
+                delta = Math.Abs(res1 - res2);
+                consoleStack.Add($"n = {n} => delta = {delta}:");
+                consoleStack.Add($"I = {res2 + delta}");
+                consoleStack.Add("");
+            }
+
+            consoleStack.Add($"Идеал ~E-15:");
+            consoleStack.Add($"I = {ideal}");
+            return consoleStack.ToArray();
+        }
+
+        public double Count(int n)
+        {
+            double h = (b - a) / n;
+            double sum = f(a) + f(b);
+
+            for (int i = 1; i < n - 1; i++)
+            {
+                double xi = a + i * h; // вычисление i-го узла
+                double fxi = f(xi); // вычисление значения функции в узле xi
+                sum += 2 * fxi; // добавление значения функции к сумме
+            }
+
+            double I = h * (sum / 2.0);
+            return I;
+        }
+
+        public override List<FunctionSeries> GetFunctionsToShow()
+        {
+            return new List<FunctionSeries>()
+            {
+                new FunctionSeries(f,a,b,0.1,"f(x)"),
+                new FunctionSeries(f,a,b,fixedn,"f(x)"),
+                new FunctionSeries(f,a,b,0.1,"f'(x)"),
+                new FunctionSeries(f_double_prime,a,b,0.1,"f''(x)"),
+                new FunctionSeries(f_fourth_prime,a,b,0.1,"f''''(x)"),
+            };
+        }
+    }
+
 
     public class I_III : Number61
     {
@@ -375,6 +528,86 @@ namespace DigitMethodsMauiApp
         }
     }
 
+    public class I_III_2 : Number61
+    {
+        public I_III_2()
+        {
+            this.Num = "6.1.3 (v2)";
+            this.UI_StartInfo = new object[]
+            {
+                new Image()
+                {
+                    Source = ImageSource.FromFile("n6_1.png"),
+                },
+                new Label {
+                    Text = "Определите число узлов для нахождения значения интеграла с точностью = 10^-3 по формулам Симпсона. Вычислите с данной точностью." ,
+                    FontAttributes = FontAttributes.Bold,
+                },
+                new Label {
+                    Text = $"a = {a}, b = {b}",
+                    FontAttributes = FontAttributes.None,
+                },
+            };
+        }
+
+        public override string[] Execute()
+        {
+            List<string> consoleStack = new List<string>();
+            double ideal = 0.4244010922027635;
+
+            int n = 2;
+            double delta = 1.0;
+            while (delta > eps)
+            {
+                double res1 = Count(n);
+                n *= 2;
+                double res2 = Count(n);
+                delta = Math.Abs(res1 - res2);
+                consoleStack.Add($"n = {n} => delta = {delta}:");
+                consoleStack.Add($"I = {res2 + delta}");
+                consoleStack.Add("");
+            }
+
+            consoleStack.Add($"Идеал ~E-15:");
+            consoleStack.Add($"I = {ideal}");
+            return consoleStack.ToArray();
+        }
+
+        public double Count(int n)
+        {
+            double h = (b - a) / n;
+            double sum = f(a) + f(b);
+
+            for (int i = 1; i < n / 2 - 1; i++)
+            {
+                double xi = a + 2 * i * h; // вычисление i-го узла
+                double fxi = f(xi); // вычисление значения функции в узле xi
+                sum += 2 * fxi; // добавление значения функции к сумме
+            }
+            for (int i = 1; i < n / 2; i++)
+            {
+                double xi = a + (2 * i - 1) * h; // вычисление i-го узла
+                double fxi = f(xi); // вычисление значения функции в узле xi
+                sum += 4 * fxi; // добавление значения функции к сумме
+            }
+
+            double I = (h / 3.0) * sum;
+            return I;
+        }
+
+        public override List<FunctionSeries> GetFunctionsToShow()
+        {
+            return new List<FunctionSeries>()
+            {
+                new FunctionSeries(f,a,b,0.1,"f(x)"),
+                new FunctionSeries(f,a,b,fixedn,"f(x)"),
+                new FunctionSeries(f,a,b,0.1,"f'(x)"),
+                new FunctionSeries(f_double_prime,a,b,0.1,"f''(x)"),
+                new FunctionSeries(f_fourth_prime,a,b,0.1,"f''''(x)"),
+            };
+        }
+    }
+
     public class I_IV : Number61
     {
         public I_IV()
@@ -423,8 +656,8 @@ namespace DigitMethodsMauiApp
                 {
                     wx *= (xarr[i] - xarr[k]);
                 }
-                sum += (fxi 
-                    * wx 
+                sum += (fxi
+                    * wx
                     / ((xi - xarr[i]) * f_prime(xarr[i]))
                     ); // добавление значения функции к сумме
             }
@@ -436,6 +669,85 @@ namespace DigitMethodsMauiApp
             consoleStack.Add($"Идеал ~E-15:");
             consoleStack.Add($"I = {ideal}");
             return consoleStack.ToArray();
+        }
+    }
+
+    public class I_IV_2 : Number61
+    {
+        public I_IV_2()
+        {
+            this.Num = "6.1.4 (v2)";
+            this.UI_StartInfo = new object[]
+            {
+                new Image()
+                {
+                    Source = ImageSource.FromFile("n6_1.png"),
+                },
+                new Label {
+                    Text = "Используя формулы интерполяционного типа, вычислите интеграл. Оцените погрешность." ,
+                    FontAttributes = FontAttributes.Bold,
+                },
+                new Label {
+                    Text = $"a = {a}, b = {b}",
+                    FontAttributes = FontAttributes.None,
+                },
+            };
+        }
+
+        public override string[] Execute()
+        {
+            List<string> consoleStack = new List<string>();
+            /*double ideal = 0.4244010922027635;
+
+            int n = 4;
+            double[] xi = new double[n];
+            xi[0] = a;
+            double h = (b - a) / n;
+            for (int i = 1; i < n; i++)
+            {
+                xi[i] = xi[i - 1] + h;
+            }
+            Variable x = new Variable();
+            Variable y = new Variable();
+            Term func = TermBuilder.Product(x - xi[k]) * TermBuilder.Log(TermBuilder.Exp(x) + TermBuilder.Exp(y));
+            while (delta > eps)
+            {
+                double res1 = Count(n);
+                n *= 2;
+                double res2 = Count(n);
+                delta = Math.Abs(res1 - res2);
+                consoleStack.Add($"n = {n} => delta = {delta}:");
+                consoleStack.Add($"I = {res2 + delta}");
+                consoleStack.Add("");
+            }
+
+            consoleStack.Add($"Идеал ~E-15:");
+            consoleStack.Add($"I = {ideal}");*/
+            return consoleStack.ToArray();
+        }
+
+        public double GetW(double x, int n, double[] xi)
+        {
+            double p = 1;
+            for (int k = 0; k < n; k++)
+            {
+                p *= (x - xi[k]);
+            }
+            return p;
+        }
+
+        public double Count(int n = 55555)
+        {
+            double h = (b - a) / n;
+            double sum = f(a);
+            for (int i = 1; i < n; i++)
+            {
+                double xi = a + (i - 0.5) * h; // вычисление i-го узла
+                double fxi = f(xi); // вычисление значения функции в узле xi
+                sum += fxi; // добавление значения функции к сумме
+            }
+            double I = h * sum;
+            return I;
         }
     }
     public class I_V : Number61
@@ -566,8 +878,8 @@ namespace DigitMethodsMauiApp
         public override string[] Execute()
         {
             int n = 10;
-            double h = (b-a) / n;
-            double[] x = new double[n]; 
+            double h = (b - a) / n;
+            double[] x = new double[n];
             for (int i = 0; i < n; i++)
             {
                 x[i] = a + i * h;

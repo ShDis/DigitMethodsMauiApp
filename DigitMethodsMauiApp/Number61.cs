@@ -82,7 +82,7 @@ namespace DigitMethodsMauiApp.Numbers
             {
                 int n = 100000;
                 double h = (b - a) / n;
-                double max = f_double_prime(a);
+                double max = f_fourth_prime(a);
                 for (int i = 1; i < n; i++)
                 {
                     double newpossiblemax = Math.Abs(f_fourth_prime(a + i * h));
