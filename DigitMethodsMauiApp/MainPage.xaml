@@ -19,8 +19,6 @@
                     <RowDefinition Height="Auto"></RowDefinition>
                     <RowDefinition Height="*"></RowDefinition>
                     <RowDefinition Height="Auto"></RowDefinition>
-                    <RowDefinition Height="*"></RowDefinition>
-                    <RowDefinition Height="Auto"></RowDefinition>
                 </Grid.RowDefinitions>
 
                 <Grid Grid.Row="0">
@@ -32,7 +30,7 @@
 
                     <Label 
                         Grid.Column="0" 
-                        x:Name="Label_CurrentNum" 
+                        Text="{Binding NumberName}"
                         FontSize="Large" 
                         FontAttributes="Bold"
                         Margin="4"
@@ -88,23 +86,18 @@
 
                 <ScrollView Grid.Row="1" VerticalOptions="Fill">
                     <VerticalStackLayout VerticalOptions="Fill"
-                        x:Name="VerticalStackLayout_NumberInfo">
-                    </VerticalStackLayout>
-                </ScrollView>
-
-                <Label Grid.Row="2" FontSize="Large" Padding="0,16,0,16" Text="Вывод консоли:"></Label>
-
-                <ScrollView Grid.Row="3" VerticalOptions="Fill">
-                    <VerticalStackLayout VerticalOptions="Fill"
                         x:Name="VerticalStackLayout_NumberItems">
                     </VerticalStackLayout>
                 </ScrollView>
 
-                <ScrollView Grid.Row="4" Orientation="Horizontal" VerticalOptions="End">
-                    <HorizontalStackLayout x:Name="HorizontalStackLayout_Buttons"></HorizontalStackLayout>
+                <ScrollView Grid.Row="2" Orientation="Horizontal" VerticalOptions="End">
+                    <HorizontalStackLayout x:Name="HorizontalStackLayout_Buttons">
+                        
+                    </HorizontalStackLayout>
                 </ScrollView>
             </Grid>
         </foldable:TwoPaneView.Pane1>
+        
         <foldable:TwoPaneView.Pane2>
             <Grid>
                 <Grid.RowDefinitions>
