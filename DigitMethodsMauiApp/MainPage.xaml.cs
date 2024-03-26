@@ -3,8 +3,10 @@ using OxyPlot;
 using OxyPlot.Series;
 using AutoDiff;
 using System.Dynamic;
-using static AndroidX.Navigation.NavDestination;
 using System.Reflection;
+using System.Net;
+using System.ComponentModel;
+using System.Reflection.Metadata;
 
 namespace DigitMethodsMauiApp
 {
@@ -18,12 +20,16 @@ namespace DigitMethodsMauiApp
             InitNumbersButtons();
 
             // привязка к ViewModel
-            BindingContext = new MainPageViewModel61();
+            BindingContext = model;
 
-            
+            //var etw = new Number611(1, 2);
+            //Image_Test.Source = ImageSource.FromUri(new Uri("https://latex.codecogs.com/gif.latex?\\dpi{400}" + etw.NumberFxFunctionLatex));
+
             //InitContent(numbers.First());
             //OxyPlotView_Main.Model = plotModel;
         }
+
+        private MainPageViewModel61 model = new MainPageViewModel61();
 
         //private List<>
 
@@ -52,7 +58,7 @@ namespace DigitMethodsMauiApp
         }
         private void InitNumbersButtons()
         {
-            HorizontalStackLayout_Buttons.Clear();
+            /*
             List<Type> types = new List<Type>() 
             { 
                 typeof(Number611), 
@@ -63,34 +69,76 @@ namespace DigitMethodsMauiApp
                 typeof(Number616),
                 typeof(Number617),
                 typeof(Number618),
-            };
-            for (int i = 0; i < types.Count; i++)
+            };*/
+            for (int i = 0; i < 8; i++)
             {
                 var bt = new Button();
                 //bt.Text = ((Number61)Activator.CreateInstance(types[i])).NumberName;
-                bt.Clicked += (s, e) => { InitContent(types[i]); };
+                bt.Text = "6.1." + (i + 1).ToString();
+                bt.Clicked += (s, e) => {
+                    Number61 nb = null;
+                    int parsedVariant = int.Parse(Entry_Variant.Text);
+                    int parsedStepsCount = int.Parse(Entry_Fixedn.Text);
+                    double parsedEps = double.Parse(Entry_Eps.Text);
+                    switch (i)
+                    {
+                        case 0:
+                            nb = new Number611(parsedVariant, parsedStepsCount, parsedEps);
+                            break;
+                        case 1:
+                            nb = new Number612(parsedVariant, parsedStepsCount, parsedEps);
+                            break;
+                        case 2:
+                            nb = new Number613(parsedVariant, parsedStepsCount, parsedEps);
+                            break;
+                        case 3:
+                            nb = new Number614(parsedVariant, parsedStepsCount, parsedEps);
+                            break;
+                        case 4:
+                            nb = new Number615(parsedVariant, parsedStepsCount, parsedEps);
+                            break;
+                        case 5:
+                            nb = new Number616(parsedVariant, parsedStepsCount, parsedEps);
+                            break;
+                        case 6:
+                            nb = new Number617(parsedVariant, parsedStepsCount, parsedEps);
+                            break;
+                        case 7:
+                            nb = new Number618(parsedVariant, parsedStepsCount, parsedEps);
+                            break;
+                    }
+                    model.Number = nb;
+                };
                 HorizontalStackLayout_Buttons.Add(bt);
             }
+        }
+
+        /*
+        private object? GetInstanceOfType(Type type)
+        {
+            return Activator.CreateInstance(
+                    type,
+                    new object[]
+                    {
+                        int.Parse(Entry_Variant.Text),
+                        int.Parse(Entry_Fixedn.Text),
+                        double.Parse(Entry_Eps.Text)
+                    }
+                    );
         }
 
         private void InitContent(Type numType)
         {
             try
             {
-                object? ww = Activator.CreateInstance(
-                    numType,
-                    int.Parse(Entry_Variant.Text),
-                    int.Parse(Entry_Fixedn.Text),
-                    double.Parse(Entry_Eps.Text)
-                    );
+                model.Number = (Number61)CreateInstance();
             }
             catch (Exception ex)
             {
-                ((MainPageViewModel61)BindingContext).NumberName = 
+                
             }
-            
-            //((MainPageViewModel61)BindingContext).Number = (Number61)ww;
         }
+        */
 
         /*
         private void InitNumbersButtons()

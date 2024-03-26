@@ -17,6 +17,7 @@
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
                     <RowDefinition Height="*"></RowDefinition>
                     <RowDefinition Height="Auto"></RowDefinition>
                 </Grid.RowDefinitions>
@@ -48,7 +49,7 @@
                             Keyboard="Numeric" 
                             MaxLength="2"
                             VerticalOptions="Center"
-                            HorizontalOptions="Center">
+                            HorizontalOptions="Start">
                         </Entry>
                         <Label Text="eps" FontSize="Small" VerticalOptions="Center"></Label>
                         <Entry 
@@ -60,9 +61,9 @@
                             PlaceholderColor="Black"
                             Keyboard="Numeric" 
                             VerticalOptions="Center"
-                            HorizontalOptions="Center">
+                            HorizontalOptions="Start">
                         </Entry>
-                        <Label Text="n" FontSize="Small" VerticalOptions="Center"></Label>
+                        <Label Text="N" FontSize="Small" VerticalOptions="Center"></Label>
                         <Entry 
                             x:Name="Entry_Fixedn" 
                             Completed="Entry_Fixedn_Completed"
@@ -72,7 +73,7 @@
                             PlaceholderColor="Black"
                             Keyboard="Numeric" 
                             VerticalOptions="Center"
-                            HorizontalOptions="Center">
+                            HorizontalOptions="Start">
                         </Entry>
                     </HorizontalStackLayout>
 
@@ -84,13 +85,15 @@
                     </Button>
                 </Grid>
 
-                <ScrollView Grid.Row="1" VerticalOptions="Fill">
+                <Image Grid.Row="1" Source="{Binding FormulaImageSource}"></Image>
+
+                <ScrollView Grid.Row="2" VerticalOptions="Fill">
                     <VerticalStackLayout VerticalOptions="Fill"
                         x:Name="VerticalStackLayout_NumberItems">
                     </VerticalStackLayout>
                 </ScrollView>
 
-                <ScrollView Grid.Row="2" Orientation="Horizontal" VerticalOptions="End">
+                <ScrollView Grid.Row="3" Orientation="Horizontal" VerticalOptions="End">
                     <HorizontalStackLayout x:Name="HorizontalStackLayout_Buttons">
                         
                     </HorizontalStackLayout>

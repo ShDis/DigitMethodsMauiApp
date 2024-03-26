@@ -28,7 +28,35 @@ namespace DigitMethodsMauiApp
         public Number61 Number
         {
             get => number;
-            set => number = value;
+            set
+            {
+                number = value;
+                OnPropertyChanged();
+            } 
+        }
+
+        public ImageSource FormulaImageSource
+        {
+            get => ImageSource.FromUri(new Uri("https://latex.codecogs.com/gif.latex?\\dpi{300}" + number.NumberFxFunctionLatex));
+        }
+
+        public List<object> MainStackPanelContent
+        {
+            get
+            {
+                return new List<object>()
+                {
+                    new Label
+                    {
+                        Text = "Определите число узлов для нахождения значения интеграла с точностью = 10^-3 по формулам трапеций. Вычислите с данной точностью. fdsf",
+                        FontAttributes = FontAttributes.Bold,
+                    },
+                };
+            }
+            set
+            {
+                OnPropertyChanged();
+            }
         }
     }
 }

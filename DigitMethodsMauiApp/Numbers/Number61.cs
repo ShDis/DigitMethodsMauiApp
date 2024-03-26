@@ -61,6 +61,17 @@ namespace DigitMethodsMauiApp.Numbers
                 return (1.0 / (x + Math.Sin(0.1 * StepsCount * x)));
         }
 
+        public virtual string NumberFxFunctionLatex
+        {
+            get
+            {
+                if (Variant % 2 == 0)
+                    return "\\int_{" + LeftLimitA.ToString() + "}^{" + RightLimitB + "} x^3 * e^{" + (-0.01 * StepsCount).ToString() + "* x^{\\frac{3}{2}}} dx";
+                else
+                    return "\\int_{" + LeftLimitA.ToString() + "}^{" + RightLimitB + "} \\frac{1}{x + \\sin(" + (0.1 * StepsCount).ToString() + " * x)} dx";
+            }
+        }
+
         [Obsolete]
         public double f_prime(double x)
         {

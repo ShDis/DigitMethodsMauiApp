@@ -10,7 +10,7 @@ namespace DigitMethodsMauiApp.Numbers
     public class Number611 : Number61
     {
         public Number611(int variant = 1, int stepsCount = 2, double eps = 0.001) : base(variant, stepsCount, eps) {}
-        public override string NumberName => "6.1.1"; 
+        public override string NumberName => "6.1.1";
         /*
         public I_I()
         {
