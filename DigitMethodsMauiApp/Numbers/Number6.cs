@@ -17,17 +17,17 @@ namespace DigitMethodsMauiApp.Numbers
                 return new object[] { new Label() { Text = "no content" } };
             }
         }
-        protected virtual object[] TaskAndAnswerSplitter
+        protected virtual object TaskAndAnswerSplitter
         {
             get
             {
-                return new object[] {
-                    new Label() {
+                return
+                    new Label()
+                    {
                         Text = "Результат",
                         FontSize = 32,
                         Padding = new Thickness(0.0, 16.0, 0.0, 16.0)
-                    }
-                };
+                    };
             }
         }
         protected virtual Label[] TextToUI(string[] text)

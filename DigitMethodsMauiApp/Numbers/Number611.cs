@@ -11,6 +11,41 @@ namespace DigitMethodsMauiApp.Numbers
     {
         public Number611(int variant = 1, int stepsCount = 2, double eps = 0.001) : base(variant, stepsCount, eps) {}
         public override string NumberName => "6.1.1";
+        public override object[] Content
+        {
+            get
+            {
+                List<string> consoleStack = new List<string>();
+                /*double ideal = 0.4244010922027635;
+                consoleStack.Add($"eps = {Eps} => n = {StepsCount}:");
+                consoleStack.Add($"I = {Count(false)}");
+                consoleStack.Add("");
+                consoleStack.Add($"n = {fixedn} => eps = {Math.Abs(ideal - Count(true, fixedn))}:");
+                consoleStack.Add($"I = {Count(true, fixedn)}");
+                consoleStack.Add("");
+                consoleStack.Add($"Идеал ~E-15:");
+                consoleStack.Add($"I = {ideal}");
+                */
+                return new object[] 
+                {
+                    new Label {
+                    Text = "Определите число узлов для нахождения значения интеграла с точностью = 10^-3 по формулам прямоугольников. Вычислите с данной точностью.",
+                    FontAttributes = FontAttributes.Bold,
+                    },
+                    TaskAndAnswerSplitter,
+                    TextToUI(consoleStack.ToArray()),
+                };
+            }
+        }
+
+        public override List<FunctionSeries> GetFunctionsToShow()
+        {
+            return new List<FunctionSeries>()
+            {
+                new FunctionSeries(NumberFxFunction,LeftLimitA,RightLimitB,0.1,"f(x)"),
+                new FunctionSeries(NumberFxFunction,LeftLimitA,RightLimitB,0.01,"f(x)"),
+            };
+        }
         /*
         public I_I()
         {

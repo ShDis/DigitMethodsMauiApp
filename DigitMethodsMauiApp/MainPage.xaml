@@ -32,6 +32,7 @@
                     <Label 
                         Grid.Column="0" 
                         Text="{Binding NumberName}"
+                        x:Name="Label_NumberName"
                         FontSize="Large" 
                         FontAttributes="Bold"
                         Margin="4"
@@ -42,7 +43,8 @@
                         <Label Text="Вариант" FontSize="Small" VerticalOptions="Center"></Label>
                         <Entry 
                             x:Name="Entry_Variant" 
-                            Text="9"
+                            Completed="Entry_Variant_Completed" 
+                            Text="1"
                             Placeholder="" 
                             TextColor="Black"
                             PlaceholderColor="Black"
@@ -85,7 +87,7 @@
                     </Button>
                 </Grid>
 
-                <Image Grid.Row="1" Source="{Binding FormulaImageSource}"></Image>
+                <Image Grid.Row="1" Source="{Binding FormulaImageSource}" x:Name="Image_FormulaImage" Margin="8"></Image>
 
                 <ScrollView Grid.Row="2" VerticalOptions="Fill">
                     <VerticalStackLayout VerticalOptions="Fill"

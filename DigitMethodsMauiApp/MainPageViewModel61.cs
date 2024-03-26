@@ -18,9 +18,10 @@ namespace DigitMethodsMauiApp
 
         public string NumberName
         {
-            get => number.NumberName;
+            get => NumberName;
             set
             {
+                NumberName = value;
                 OnPropertyChanged();
             }
         }
@@ -31,6 +32,7 @@ namespace DigitMethodsMauiApp
             set
             {
                 number = value;
+                NumberName = number.NumberName;
                 OnPropertyChanged();
             } 
         }
@@ -38,6 +40,11 @@ namespace DigitMethodsMauiApp
         public ImageSource FormulaImageSource
         {
             get => ImageSource.FromUri(new Uri("https://latex.codecogs.com/gif.latex?\\dpi{300}" + number.NumberFxFunctionLatex));
+            set
+            {
+                FormulaImageSource = value;
+                OnPropertyChanged();
+            }
         }
 
         public List<object> MainStackPanelContent

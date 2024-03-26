@@ -8,10 +8,6 @@ namespace DigitMethodsMauiApp.Numbers
 {
     public class Number61 : Number6
     {
-        public Number61()
-        {
-            
-        }
         /// <summary>
         /// Инициализация 6.1.x
         /// </summary>
@@ -31,23 +27,23 @@ namespace DigitMethodsMauiApp.Numbers
         /// <summary>
         /// Вариант
         /// </summary>
-        public int Variant { get; private set; }
+        public int Variant { get; set; }
         /// <summary>
         /// Количество шагов
         /// </summary>
-        public int StepsCount { get; private set; }
+        public int StepsCount { get; set; }
         /// <summary>
         /// Необходимая точность
         /// </summary>
-        public double Eps { get; private set; }
+        public double Eps { get; set; }
         /// <summary>
         /// Левый предел интегрирования
         /// </summary>
-        public double LeftLimitA { get { return Variant % 2 == 0 ? 0.1 * (StepsCount + 3) : 0.2 * (StepsCount + 6); } }
+        public double LeftLimitA { get { return Variant % 2 == 0 ? 0.1 * (Variant + 3) : 0.2 * (Variant + 6); } }
         /// <summary>
         /// Правый предел интегрирования
         /// </summary>
-        public double RightLimitB { get { return Variant % 2 == 0 ? 0.25 * (StepsCount + 3) : 0.3 * (StepsCount + 6); } }
+        public double RightLimitB { get { return Variant % 2 == 0 ? 0.25 * (Variant + 3) : 0.3 * (Variant + 6); } }
         /// <summary>
         /// Функция для первых семи номеров (6.1.1 - 6.1.7)
         /// </summary>
@@ -56,9 +52,9 @@ namespace DigitMethodsMauiApp.Numbers
         public virtual double NumberFxFunction(double x)
         {
             if (Variant % 2 == 0)
-                return (Math.Pow(x, 3.0) * Math.Pow(Math.E, (-0.01 * StepsCount * Math.Pow(x, 3.0 / 2.0))));
+                return (Math.Pow(x, 3.0) * Math.Pow(Math.E, (-0.01 * Variant * Math.Pow(x, 3.0 / 2.0))));
             else
-                return (1.0 / (x + Math.Sin(0.1 * StepsCount * x)));
+                return (1.0 / (x + Math.Sin(0.1 * Variant * x)));
         }
 
         public virtual string NumberFxFunctionLatex
@@ -66,9 +62,9 @@ namespace DigitMethodsMauiApp.Numbers
             get
             {
                 if (Variant % 2 == 0)
-                    return "\\int_{" + LeftLimitA.ToString() + "}^{" + RightLimitB + "} x^3 * e^{" + (-0.01 * StepsCount).ToString() + "* x^{\\frac{3}{2}}} dx";
+                    return "\\int_{" + LeftLimitA.ToString() + "}^{" + RightLimitB + "} x^3 * e^{" + (-0.01 * Variant).ToString() + "* x^{\\frac{3}{2}}} dx";
                 else
-                    return "\\int_{" + LeftLimitA.ToString() + "}^{" + RightLimitB + "} \\frac{1}{x + \\sin(" + (0.1 * StepsCount).ToString() + " * x)} dx";
+                    return "\\int_{" + LeftLimitA.ToString() + "}^{" + RightLimitB + "} \\frac{1}{x + \\sin(" + (0.1 * Variant).ToString() + " * x)} dx";
             }
         }
 

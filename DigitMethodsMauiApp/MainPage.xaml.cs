@@ -20,7 +20,7 @@ namespace DigitMethodsMauiApp
             InitNumbersButtons();
 
             // привязка к ViewModel
-            BindingContext = model;
+            //BindingContext = model;
 
             //var etw = new Number611(1, 2);
             //Image_Test.Source = ImageSource.FromUri(new Uri("https://latex.codecogs.com/gif.latex?\\dpi{400}" + etw.NumberFxFunctionLatex));
@@ -56,9 +56,9 @@ namespace DigitMethodsMauiApp
         {
             plotModel.Series.Clear();
         }
+        /*
         private void InitNumbersButtons()
         {
-            /*
             List<Type> types = new List<Type>() 
             { 
                 typeof(Number611), 
@@ -69,49 +69,22 @@ namespace DigitMethodsMauiApp
                 typeof(Number616),
                 typeof(Number617),
                 typeof(Number618),
-            };*/
-            for (int i = 0; i < 8; i++)
+            };
+            for (int i = 0; i < types.Count; i++)
             {
                 var bt = new Button();
-                //bt.Text = ((Number61)Activator.CreateInstance(types[i])).NumberName;
-                bt.Text = "6.1." + (i + 1).ToString();
+                bt.Text = ((Number61)Activator.CreateInstance(types[i])).NumberName;
+                //bt.Text = "6.1." + (i + 1).ToString();
                 bt.Clicked += (s, e) => {
-                    Number61 nb = null;
                     int parsedVariant = int.Parse(Entry_Variant.Text);
                     int parsedStepsCount = int.Parse(Entry_Fixedn.Text);
                     double parsedEps = double.Parse(Entry_Eps.Text);
-                    switch (i)
-                    {
-                        case 0:
-                            nb = new Number611(parsedVariant, parsedStepsCount, parsedEps);
-                            break;
-                        case 1:
-                            nb = new Number612(parsedVariant, parsedStepsCount, parsedEps);
-                            break;
-                        case 2:
-                            nb = new Number613(parsedVariant, parsedStepsCount, parsedEps);
-                            break;
-                        case 3:
-                            nb = new Number614(parsedVariant, parsedStepsCount, parsedEps);
-                            break;
-                        case 4:
-                            nb = new Number615(parsedVariant, parsedStepsCount, parsedEps);
-                            break;
-                        case 5:
-                            nb = new Number616(parsedVariant, parsedStepsCount, parsedEps);
-                            break;
-                        case 6:
-                            nb = new Number617(parsedVariant, parsedStepsCount, parsedEps);
-                            break;
-                        case 7:
-                            nb = new Number618(parsedVariant, parsedStepsCount, parsedEps);
-                            break;
-                    }
-                    model.Number = nb;
+                    model.Number = (Number61)Activator.CreateInstance(types[i], parsedVariant, parsedStepsCount, parsedEps);
                 };
+
                 HorizontalStackLayout_Buttons.Add(bt);
             }
-        }
+        }*/
 
         /*
         private object? GetInstanceOfType(Type type)
@@ -140,35 +113,43 @@ namespace DigitMethodsMauiApp
         }
         */
 
-        /*
+        private List<Number61> numbers = new List<Number61>()
+        {
+            new Number611(),
+            new Number612(),
+            new Number613(),
+            new Number614(),
+            new Number615(),
+            new Number616(),
+            new Number617(),
+            new Number618(),
+        };
+
         private void InitNumbersButtons()
         {
             HorizontalStackLayout_Buttons.Clear();
-            foreach (Number6 number in numbers)
+            foreach (var number in numbers)
             {
                 var b = new Button();
-                b.Text = number.Num;
+                b.Text = number.NumberName;
                 b.Clicked += (s, e) => { InitContent(number); };
                 HorizontalStackLayout_Buttons.Add(b);
             }
         }
-        private Number6 lastInitedNumber = null;
-        private void InitContent(Number6 number)
+        private Number61 lastInitedNumber = null;
+        private void InitContent(Number61 number)
         {
             if (number == null) { return; }
 
-            Label_CurrentNum.Text = number.Num;
-            Label_CurrentNumCode.Text = number.Num;
-
-            VerticalStackLayout_NumberInfo.Clear();
-            foreach (var item in number.UI_StartInfo)
-            {
-                VerticalStackLayout_NumberInfo.Add((View)item);
-            }
+            Image_FormulaImage.Source = ImageSource.FromUri(new Uri("https://latex.codecogs.com/gif.latex?\\dpi{300}" + number.NumberFxFunctionLatex));
+            Label_NumberName.Text = number.NumberName;
+            Label_CurrentNumCode.Text = number.NumberName;
+            number.Variant = lastInitedNumber.Variant;
+            number.Eps = lastInitedNumber.Eps;
+            number.StepsCount = lastInitedNumber.StepsCount;
 
             VerticalStackLayout_NumberItems.Clear();
-            var executeRes = number.ExecuteUIResult;
-            foreach (var item in executeRes)
+            foreach (var item in number.Content)
             {
                 VerticalStackLayout_NumberItems.Add((View)item);
             }
@@ -181,7 +162,7 @@ namespace DigitMethodsMauiApp
                 AddFuncToPlotModel(item);
             }
         }
-        */
+        
         private void Button_Plot_Clicked(object sender, EventArgs e)
         {
             twoPaneView.Pane1Length = new GridLength(0, GridUnitType.Absolute);
@@ -196,12 +177,11 @@ namespace DigitMethodsMauiApp
 
         private void Entry_Eps_Completed(object sender, EventArgs e)
         {
-            /*
             double temp_e = 0.001;
             try
             {
                 temp_e = double.Parse(Entry_Eps.Text);
-                if (!Number6.CheckEps(temp_e))
+                if (temp_e > 0.1 || temp_e < 10E-15)
                     throw new Exception();
             }
             catch
@@ -209,17 +189,12 @@ namespace DigitMethodsMauiApp
                 temp_e = 0.001;
             }
             Entry_Eps.Text = temp_e.ToString();
-            foreach (var item in numbers)
-            {
-                item.ChangeEps(temp_e);
-            }
+            lastInitedNumber.Eps = temp_e;
             InitContent(lastInitedNumber);
-            */
         }
 
         private void Entry_Fixedn_Completed(object sender, EventArgs e)
         {
-            /*
             int temp_n = 10;
             try
             {
@@ -232,12 +207,26 @@ namespace DigitMethodsMauiApp
                 temp_n = 10;
             }
             Entry_Fixedn.Text = temp_n.ToString();
-            foreach (var item in numbers)
-            {
-                item.ChangeFixedn(temp_n);
-            }
+            lastInitedNumber.StepsCount = temp_n;
             InitContent(lastInitedNumber);
-            */
+        }
+
+        private void Entry_Variant_Completed(object sender, EventArgs e)
+        {
+            int temp_v = 1;
+            try
+            {
+                temp_v = int.Parse(Entry_Variant.Text);
+                if (temp_v < 1 || temp_v > 30)
+                    throw new Exception();
+            }
+            catch
+            {
+                temp_v = 1;
+            }
+            Entry_Variant.Text = temp_v.ToString();
+            lastInitedNumber.Variant = temp_v;
+            InitContent(lastInitedNumber);
         }
     }
 }
