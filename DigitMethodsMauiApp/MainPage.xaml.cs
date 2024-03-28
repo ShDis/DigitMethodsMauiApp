@@ -2,6 +2,12 @@
 using OxyPlot;
 using OxyPlot.Series;
 using AutoDiff;
+using System.Dynamic;
+using System.Reflection;
+using System.Net;
+using System.ComponentModel;
+using System.Reflection.Metadata;
+using OxyPlot.Legends;
 
 namespace DigitMethodsMauiApp
 {
@@ -10,97 +16,173 @@ namespace DigitMethodsMauiApp
         public MainPage()
         {
             InitializeComponent();
+
+            // инициализация кнопок номеров
             InitNumbersButtons();
-            InitContent(numbers.First());
-            OxyPlotView_Main.Model = plotModel;
+
+            // привязка к ViewModel
+            //BindingContext = model;
+
+            //var etw = new Number611(1, 2);
+            //Image_Test.Source = ImageSource.FromUri(new Uri("https://latex.codecogs.com/gif.latex?\\dpi{400}" + etw.NumberFxFunctionLatex));
+
+            //InitContent(numbers.First());
+
+            // модель графика
+            //OxyPlotView_Main.Model = oxyPlotModel;
         }
 
-        private List<Number6> numbers = new List<Number6>()
+        //private MainPageViewModel61 model = new MainPageViewModel61();
+
+        //public PlotModel oxyPlotModel { get; set; } = new PlotModel() { Title = "Выберите номер для просмотра графика" };
+
+        /// <summary>
+        /// Номера
+        /// </summary>
+        private List<Number61> numbers = new List<Number61>()
         {
-            new I_I(),
-            new I_I_2(),
-            new I_II(),
-            new I_II_2(),
-            new I_III(),
-            new I_III_2(),
-            new I_IV(),
-            new I_IV_2(),
-            new I_V(),
-            new I_VI(),
-            new I_VII(),
-            new I_VIII(),
-            new II_I(),
-            new II_II(),
+            new Number611left(),
+            new Number611right(),
+            new Number611central(),
+            new Number612(),
+            new Number613(),
+            new Number614(),
+            new Number615(),
+            new Number616(),
+            new Number617(),
+            new Number618(),
         };
-
-        public PlotModel plotModel { get; set; } = new PlotModel() { Title = "Экспериментальный график" };
-
-        public void AddFuncToPlotModel(string title, Func<double, double> f, double from, double to, double dx)
-        {
-            plotModel.Series.Add(new FunctionSeries(f, from, to, dx));
-        }
-
-        public void AddFuncToPlotModel(FunctionSeries functionSeries)
-        {
-            plotModel.Series.Add(functionSeries);
-        }
-
-        public void ClearPlotModel()
-        {
-            plotModel.Series.Clear();
-        }
-
+        /// <summary>
+        /// Инициализая кнопок номеров
+        /// </summary>
         private void InitNumbersButtons()
         {
             HorizontalStackLayout_Buttons.Clear();
-            foreach (Number6 number in numbers)
+            foreach (var number in numbers)
             {
                 var b = new Button();
-                b.Text = number.Num;
-                b.Clicked += (s, e) => { InitContent(number); };
+                b.Style = (Style)this.Resources["Style_BasicNumberButton"];
+                b.Text = number.NumberName;
+                b.Clicked += 
+                    (s, e) => { 
+                        InitContent(number); 
+                        Button? b = s as Button;
+                        if (b != null) {
+                            ResetButtonsColor();
+                            b.Style = (Style)this.Resources["Style_PressedNumberButton"];
+                        }; 
+                    };
+                buttons.Add(b);
                 HorizontalStackLayout_Buttons.Add(b);
             }
         }
-        private Number6 lastInitedNumber = null;
-        private void InitContent(Number6 number)
+
+        private List<Button> buttons = new List<Button>();
+        private void ResetButtonsColor()
+        {
+            foreach (var b in buttons)
+                b.Style = (Style)this.Resources["Style_BasicNumberButton"];
+        }
+        private Number61 lastInitedNumber = new Number611left();
+        private void InitContent(Number61 number)
         {
             if (number == null) { return; }
-
-            Label_CurrentNum.Text = number.Num;
-            Label_CurrentNumCode.Text = number.Num;
-
-            VerticalStackLayout_NumberInfo.Clear();
-            foreach (var item in number.UI_StartInfo)
-            {
-                VerticalStackLayout_NumberInfo.Add((View)item);
-            }
+           
+            Label_NumberName.Text = number.NumberName;
+            Label_CurrentNumCode.Text = number.NumberName;
+            number.Variant = lastInitedNumber.Variant;
+            number.Eps = lastInitedNumber.Eps;
+            number.StepsCount = lastInitedNumber.StepsCount;
+            InitIntegralImage(number);
 
             VerticalStackLayout_NumberItems.Clear();
-            var executeRes = number.ExecuteUIResult;
-            foreach (var item in executeRes)
+            foreach (var item in number.Content)
             {
                 VerticalStackLayout_NumberItems.Add((View)item);
             }
 
             lastInitedNumber = number;
 
-            ClearPlotModel();
+            var oxyPlotModel = new PlotModel();
+            oxyPlotModel.DefaultColors = new List<OxyColor>() { OxyColor.FromArgb(180, 225, 175, 209), OxyColor.FromArgb(220, 116, 105, 182) };
+            //oxyPlotModel.Series.Add(new FunctionSeries(x => x * x, -5.0, 5.0, 0.5, "test"));
             foreach (var item in number.GetFunctionsToShow())
             {
-                AddFuncToPlotModel(item);
+                oxyPlotModel.Series.Add(item);
+                
             }
+            var l = new Legend
+            {
+                LegendPlacement = LegendPlacement.Inside,
+                LegendPosition = LegendPosition.RightTop,
+                LegendBackground = OxyColor.FromAColor(200, OxyColors.White),
+                LegendBorder = OxyColors.Black,
+            };
+            oxyPlotModel.Legends.Add(l);
+            OxyPlotView_Main.Model = oxyPlotModel;
         }
 
+        private static async Task<bool> DoesUrlExists(String url)
+        {
+            try
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    client.Timeout = TimeSpan.FromMilliseconds(10000);
+                    var cts = new CancellationTokenSource();
+                    try
+                    {
+                        var x = await client.GetAsync(url, cts.Token);
+                        return true;
+                    }
+                    catch (WebException ex)
+                    {
+                        // handle web exception
+                    }
+                    catch (TaskCanceledException ex)
+                    {
+                        if (ex.CancellationToken == cts.Token)
+                        {
+                            // a real cancellation, triggered by the caller
+                        }
+                        else
+                        {
+                            // a web request timeout (possibly other things!?)
+                        }
+                    }
+                }
+            }
+            catch
+            {
+
+            }
+            return false;
+        }
+
+        private async void InitIntegralImage(Number61 number)
+        {
+            Image_FormulaImage.Source = ImageSource.FromFile("n6_1.png");
+            bool exists = await DoesUrlExists("https://latex.codecogs.com");
+            if (exists)
+            {
+                Image_FormulaImage.Source = ImageSource.FromUri(new Uri("https://latex.codecogs.com/gif.latex?\\dpi{350}" + number.NumberFxFunctionLatex));
+            }
+        }
+        
         private void Button_Plot_Clicked(object sender, EventArgs e)
         {
             twoPaneView.Pane1Length = new GridLength(0, GridUnitType.Absolute);
             twoPaneView.Pane2Length = new GridLength(1, GridUnitType.Star);
+            twoPaneView.Pane1.IsVisible = false;
+            twoPaneView.Pane2.IsVisible = true;
         }
 
         private void Button_Task_Clicked(object sender, EventArgs e)
         {
             twoPaneView.Pane2Length = new GridLength(0, GridUnitType.Absolute);
             twoPaneView.Pane1Length = new GridLength(1, GridUnitType.Star);
+            twoPaneView.Pane1.IsVisible = true;
+            twoPaneView.Pane2.IsVisible = false;
         }
 
         private void Entry_Eps_Completed(object sender, EventArgs e)
@@ -109,7 +191,7 @@ namespace DigitMethodsMauiApp
             try
             {
                 temp_e = double.Parse(Entry_Eps.Text);
-                if (!Number6.CheckEps(temp_e))
+                if (temp_e > 0.1 || temp_e < 10E-15)
                     throw new Exception();
             }
             catch
@@ -117,10 +199,7 @@ namespace DigitMethodsMauiApp
                 temp_e = 0.001;
             }
             Entry_Eps.Text = temp_e.ToString();
-            foreach (var item in numbers)
-            {
-                item.ChangeEps(temp_e);
-            }
+            lastInitedNumber.Eps = temp_e;
             InitContent(lastInitedNumber);
         }
 
@@ -137,779 +216,87 @@ namespace DigitMethodsMauiApp
             {
                 temp_n = 10;
             }
+
+            Label_Steps.Text = (temp_n % 10 == 1 && temp_n % 100 != 11) ? "шаг" : (temp_n % 10 > 1 && temp_n % 10 < 5 && (temp_n % 100 > 14 || temp_n % 100 < 12)) ? "шага" : "шагов";
+
             Entry_Fixedn.Text = temp_n.ToString();
-            foreach (var item in numbers)
-            {
-                item.ChangeFixedn(temp_n);
-            }
+            lastInitedNumber.StepsCount = temp_n;
             InitContent(lastInitedNumber);
         }
-    }
 
+        private void Entry_Variant_Completed(object sender, EventArgs e)
+        {
+            int temp_v = 1;
+            try
+            {
+                temp_v = int.Parse(Entry_Variant.Text);
+                if (temp_v < 1 || temp_v > 30)
+                    throw new Exception();
+            }
+            catch
+            {
+                temp_v = 1;
+            }
+            Entry_Variant.Text = temp_v.ToString();
+            lastInitedNumber.Variant = temp_v;
+            InitContent(lastInitedNumber);
+        }
 
-
-    public class I_I : Number61
+        /*
+private void InitNumbersButtons()
+{
+    List<Type> types = new List<Type>() 
+    { 
+        typeof(Number611), 
+        typeof(Number612),
+        typeof(Number613),
+        typeof(Number614),
+        typeof(Number615),
+        typeof(Number616),
+        typeof(Number617),
+        typeof(Number618),
+    };
+    for (int i = 0; i < types.Count; i++)
     {
+        var bt = new Button();
+        bt.Text = ((Number61)Activator.CreateInstance(types[i])).NumberName;
+        //bt.Text = "6.1." + (i + 1).ToString();
+        bt.Clicked += (s, e) => {
+            int parsedVariant = int.Parse(Entry_Variant.Text);
+            int parsedStepsCount = int.Parse(Entry_Fixedn.Text);
+            double parsedEps = double.Parse(Entry_Eps.Text);
+            model.Number = (Number61)Activator.CreateInstance(types[i], parsedVariant, parsedStepsCount, parsedEps);
+        };
 
-        public I_I()
-        {
-            this.Num = "6.1.1";
-            this.UI_StartInfo = new object[]
-            {
-                new Image()
-                {
-                    Source = ImageSource.FromFile("n6_1.png"),
-                },
-                new Label {
-                    Text = "Определите число узлов для нахождения значения интеграла с точностью = 10^-3 по формулам прямоугольников. Вычислите с данной точностью.",
-                    FontAttributes = FontAttributes.Bold,
-                },
-                new Label {
-                    Text = $"a = {a}, b = {b}",
-                    FontAttributes = FontAttributes.None,
-                },
-            };
-        }
-
-        public override string[] Execute()
-        {
-            List<string> consoleStack = new List<string>();
-            double ideal = 0.4244010922027635;
-            consoleStack.Add($"eps = {eps} => n = {GetN()}:");
-            consoleStack.Add($"I = {Count(false)}");
-            consoleStack.Add("");
-            consoleStack.Add($"n = {fixedn} => eps = {Math.Abs(ideal - Count(true, fixedn))}:");
-            consoleStack.Add($"I = {Count(true, fixedn)}");
-            consoleStack.Add("");
-            consoleStack.Add($"Идеал ~E-15:");
-            consoleStack.Add($"I = {ideal}");
-            return consoleStack.ToArray();
-        }
-
-        public int GetN()
-        {
-            double approxh = Math.Pow((24.0 * eps) / ((b - a) * M2), 1.0 / 2.0);
-            int n = (int)Math.Ceiling((b - a) / approxh);
-            return n;
-        }
-        public double Count(bool useFixedn, int n = 10)
-        {
-            if (!useFixedn)
-            {
-                n = GetN();
-            }
-
-            double h = (b - a) / n;
-            double sum = f(a);
-
-            for (int i = 1; i < n; i++)
-            {
-                double xi = a + (i - 0.5) * h; // вычисление i-го узла
-                double fxi = f(xi); // вычисление значения функции в узле xi
-                sum += fxi; // добавление значения функции к сумме
-            }
-            double I = h * sum;
-            return I;
-        }
-
-        public override List<FunctionSeries> GetFunctionsToShow()
-        {
-            return new List<FunctionSeries>()
-            {
-                new FunctionSeries(f,a,b,0.1,"f(x)"),
-                new FunctionSeries(f,a,b,fixedn,"f(x)"),
-                new FunctionSeries(f,a,b,0.1,"f'(x)"),
-                new FunctionSeries(f_double_prime,a,b,0.1,"f''(x)"),
-                new FunctionSeries(f_fourth_prime,a,b,0.1,"f''''(x)"),
-            };
-        }
+        HorizontalStackLayout_Buttons.Add(bt);
     }
+}*/
 
-    public class I_I_2 : Number61
-    {
-
-        public I_I_2()
+        /*
+        private object? GetInstanceOfType(Type type)
         {
-            this.Num = "6.1.1 (v2)";
-            this.UI_StartInfo = new object[]
-            {
-                new Image()
-                {
-                    Source = ImageSource.FromFile("n6_1.png"),
-                },
-                new Label {
-                    Text = "Определите число узлов для нахождения значения интеграла с точностью = 10^-3 по формулам прямоугольников. Вычислите с данной точностью.",
-                    FontAttributes = FontAttributes.Bold,
-                },
-                new Label {
-                    Text = $"a = {a}, b = {b}",
-                    FontAttributes = FontAttributes.None,
-                },
-            };
+            return Activator.CreateInstance(
+                    type,
+                    new object[]
+                    {
+                        int.Parse(Entry_Variant.Text),
+                        int.Parse(Entry_Fixedn.Text),
+                        double.Parse(Entry_Eps.Text)
+                    }
+                    );
         }
 
-        public override string[] Execute()
+        private void InitContent(Type numType)
         {
-            List<string> consoleStack = new List<string>();
-            double ideal = 0.4244010922027635;
-
-            int n = 2;
-            double delta = 1.0;
-            while (delta > eps)
+            try
             {
-                double res1 = Count(n);
-                n *= 2;
-                double res2 = Count(n);
-                delta = Math.Abs(res1 - res2);
-                consoleStack.Add($"n = {n} => delta = {delta}:");
-                consoleStack.Add($"I = {res2 + delta}");
-                consoleStack.Add("");
+                model.Number = (Number61)CreateInstance();
             }
-
-            consoleStack.Add($"Идеал ~E-15:");
-            consoleStack.Add($"I = {ideal}");
-            return consoleStack.ToArray();
-        }
-
-        public double Count(int n)
-        {
-            double h = (b - a) / n;
-            double sum = f(a);
-            for (int i = 1; i < n; i++)
+            catch (Exception ex)
             {
-                double xi = a + (i - 0.5) * h; // вычисление i-го узла
-                double fxi = f(xi); // вычисление значения функции в узле xi
-                sum += fxi; // добавление значения функции к сумме
+                
             }
-            double I = h * sum;
-            return I;
         }
-
-        public override List<FunctionSeries> GetFunctionsToShow()
-        {
-            return new List<FunctionSeries>()
-            {
-                new FunctionSeries(f,a,b,0.1,"f(x)"),
-                new FunctionSeries(f,a,b,fixedn,"f(x)"),
-                new FunctionSeries(f,a,b,0.1,"f'(x)"),
-                new FunctionSeries(f_double_prime,a,b,0.1,"f''(x)"),
-                new FunctionSeries(f_fourth_prime,a,b,0.1,"f''''(x)"),
-            };
-        }
-    }
-
-    public class I_II : Number61
-    {
-        public I_II()
-        {
-            this.Num = "6.1.2";
-            this.UI_StartInfo = new object[]
-            {
-                new Image()
-                {
-                    Source = ImageSource.FromFile("n6_1.png"),
-                },
-                new Label {
-                    Text = "Определите число узлов для нахождения значения интеграла с точностью = 10^-3 по формулам трапеций. Вычислите с данной точностью." ,
-                    FontAttributes = FontAttributes.Bold,
-                },
-                new Label {
-                    Text = $"a = {a}, b = {b}",
-                    FontAttributes = FontAttributes.None,
-                },
-            };
-        }
-        public int GetN()
-        {
-            double approxh = Math.Pow((12.0 * eps) / ((b - a) * M2), 1.0 / 2.0);
-            int n = (int)Math.Ceiling((b - a) / approxh);
-            return n;
-        }
-        public override string[] Execute()
-        {
-            List<string> consoleStack = new List<string>();
-
-            double ideal = 0.4244010922027635;
-            consoleStack.Add($"eps = {eps} => n = {GetN()}:");
-            consoleStack.Add($"I = {Count(false)}");
-            consoleStack.Add("");
-            consoleStack.Add($"n = {fixedn} => eps = {Math.Abs(ideal - Count(true, fixedn))}:");
-            consoleStack.Add($"I = {Count(true, fixedn)}");
-            consoleStack.Add("");
-            consoleStack.Add($"Идеал ~E-15:");
-            consoleStack.Add($"I = {ideal}");
-            return consoleStack.ToArray();
-        }
-
-        public double Count(bool useFixedn, int n = 10)
-        {
-            if (!useFixedn)
-            {
-                n = GetN();
-            }
-
-            double h = (b - a) / n;
-            double sum = f(a) + f(b);
-
-            for (int i = 1; i < n - 1; i++)
-            {
-                double xi = a + i * h; // вычисление i-го узла
-                double fxi = f(xi); // вычисление значения функции в узле xi
-                sum += 2 * fxi; // добавление значения функции к сумме
-            }
-
-            double I = h * (sum / 2.0);
-            return I;
-        }
-
-        public override List<FunctionSeries> GetFunctionsToShow()
-        {
-            return new List<FunctionSeries>()
-            {
-                new FunctionSeries(f,a,b,0.1,"f(x)"),
-                new FunctionSeries(f,a,b,fixedn,"f(x)"),
-                new FunctionSeries(f,a,b,0.1,"f'(x)"),
-                new FunctionSeries(f_double_prime,a,b,0.1,"f''(x)"),
-                new FunctionSeries(f_fourth_prime,a,b,0.1,"f''''(x)"),
-            };
-        }
-    }
-
-    public class I_II_2 : Number61
-    {
-        public I_II_2()
-        {
-            this.Num = "6.1.2 (v2)";
-            this.UI_StartInfo = new object[]
-            {
-                new Image()
-                {
-                    Source = ImageSource.FromFile("n6_1.png"),
-                },
-                new Label {
-                    Text = "Определите число узлов для нахождения значения интеграла с точностью = 10^-3 по формулам трапеций. Вычислите с данной точностью." ,
-                    FontAttributes = FontAttributes.Bold,
-                },
-                new Label {
-                    Text = $"a = {a}, b = {b}",
-                    FontAttributes = FontAttributes.None,
-                },
-            };
-        }
-
-        public override string[] Execute()
-        {
-            List<string> consoleStack = new List<string>();
-            double ideal = 0.4244010922027635;
-
-            int n = 2;
-            double delta = 1.0;
-            while (delta > eps)
-            {
-                double res1 = Count(n);
-                n *= 2;
-                double res2 = Count(n);
-                delta = Math.Abs(res1 - res2);
-                consoleStack.Add($"n = {n} => delta = {delta}:");
-                consoleStack.Add($"I = {res2 + delta}");
-                consoleStack.Add("");
-            }
-
-            consoleStack.Add($"Идеал ~E-15:");
-            consoleStack.Add($"I = {ideal}");
-            return consoleStack.ToArray();
-        }
-
-        public double Count(int n)
-        {
-            double h = (b - a) / n;
-            double sum = f(a) + f(b);
-
-            for (int i = 1; i < n - 1; i++)
-            {
-                double xi = a + i * h; // вычисление i-го узла
-                double fxi = f(xi); // вычисление значения функции в узле xi
-                sum += 2 * fxi; // добавление значения функции к сумме
-            }
-
-            double I = h * (sum / 2.0);
-            return I;
-        }
-
-        public override List<FunctionSeries> GetFunctionsToShow()
-        {
-            return new List<FunctionSeries>()
-            {
-                new FunctionSeries(f,a,b,0.1,"f(x)"),
-                new FunctionSeries(f,a,b,fixedn,"f(x)"),
-                new FunctionSeries(f,a,b,0.1,"f'(x)"),
-                new FunctionSeries(f_double_prime,a,b,0.1,"f''(x)"),
-                new FunctionSeries(f_fourth_prime,a,b,0.1,"f''''(x)"),
-            };
-        }
-    }
-
-
-    public class I_III : Number61
-    {
-        public I_III()
-        {
-            this.Num = "6.1.3";
-            this.UI_StartInfo = new object[]
-            {
-                new Image()
-                {
-                    Source = ImageSource.FromFile("n6_1.png"),
-                },
-                new Label {
-                    Text = "Определите число узлов для нахождения значения интеграла с точностью = 10^-3 по формулам Симпсона. Вычислите с данной точностью." ,
-                    FontAttributes = FontAttributes.Bold,
-                },
-                new Label {
-                    Text = $"a = {a}, b = {b}",
-                    FontAttributes = FontAttributes.None,
-                },
-            };
-        }
-
-        public override string[] Execute()
-        {
-            List<string> consoleStack = new List<string>();
-
-            double ideal = 0.4244010922027635;
-            consoleStack.Add($"eps = {eps} => n = {GetN()}:");
-            consoleStack.Add($"I = {Count(false)}");
-            consoleStack.Add("");
-            consoleStack.Add($"n = {fixedn} => eps = {Math.Abs(ideal - Count(true, fixedn))}:");
-            consoleStack.Add($"I = {Count(true, fixedn)}");
-            consoleStack.Add("");
-            consoleStack.Add($"Идеал ~E-15:");
-            consoleStack.Add($"I = {ideal}");
-            return consoleStack.ToArray();
-        }
-        public int GetN()
-        {
-            double approxh = Math.Pow((2880.0 * eps) / ((b - a) * M4), 0.25);
-            int n = (int)Math.Ceiling((b - a) / approxh);
-            n = n % 2 == 0 ? n : n + 1;
-            return n;
-        }
-        public double Count(bool useFixedn, int n = 10)
-        {
-            if (!useFixedn)
-            {
-                n = GetN();
-            }
-
-            double h = (b - a) / n;
-            double sum = f(a) + f(b);
-
-            for (int i = 1; i < n - 1; i++)
-            {
-                double xi = a + i * h; // вычисление i-го узла
-                double fxi = f(xi); // вычисление значения функции в узле xi
-                sum += (i % 2 == 0 ? 2 : 4) * fxi; // добавление значения функции к сумме
-            }
-
-            double I = (h / 3.0) * sum;
-            return I;
-        }
-
-        public override List<FunctionSeries> GetFunctionsToShow()
-        {
-            return new List<FunctionSeries>()
-            {
-                new FunctionSeries(f,a,b,0.1,"f(x)"),
-                new FunctionSeries(f,a,b,fixedn,"f(x)"),
-                new FunctionSeries(f,a,b,0.1,"f'(x)"),
-                new FunctionSeries(f_double_prime,a,b,0.1,"f''(x)"),
-                new FunctionSeries(f_fourth_prime,a,b,0.1,"f''''(x)"),
-            };
-        }
-    }
-
-    public class I_III_2 : Number61
-    {
-        public I_III_2()
-        {
-            this.Num = "6.1.3 (v2)";
-            this.UI_StartInfo = new object[]
-            {
-                new Image()
-                {
-                    Source = ImageSource.FromFile("n6_1.png"),
-                },
-                new Label {
-                    Text = "Определите число узлов для нахождения значения интеграла с точностью = 10^-3 по формулам Симпсона. Вычислите с данной точностью." ,
-                    FontAttributes = FontAttributes.Bold,
-                },
-                new Label {
-                    Text = $"a = {a}, b = {b}",
-                    FontAttributes = FontAttributes.None,
-                },
-            };
-        }
-
-        public override string[] Execute()
-        {
-            List<string> consoleStack = new List<string>();
-            double ideal = 0.4244010922027635;
-
-            int n = 2;
-            double delta = 1.0;
-            while (delta > eps)
-            {
-                double res1 = Count(n);
-                n *= 2;
-                double res2 = Count(n);
-                delta = Math.Abs(res1 - res2);
-                consoleStack.Add($"n = {n} => delta = {delta}:");
-                consoleStack.Add($"I = {res2 + delta}");
-                consoleStack.Add("");
-            }
-
-            consoleStack.Add($"Идеал ~E-15:");
-            consoleStack.Add($"I = {ideal}");
-            return consoleStack.ToArray();
-        }
-
-        public double Count(int n)
-        {
-            double h = (b - a) / n;
-            double sum = f(a) + f(b);
-
-            for (int i = 1; i < n / 2 - 1; i++)
-            {
-                double xi = a + 2 * i * h; // вычисление i-го узла
-                double fxi = f(xi); // вычисление значения функции в узле xi
-                sum += 2 * fxi; // добавление значения функции к сумме
-            }
-            for (int i = 1; i < n / 2; i++)
-            {
-                double xi = a + (2 * i - 1) * h; // вычисление i-го узла
-                double fxi = f(xi); // вычисление значения функции в узле xi
-                sum += 4 * fxi; // добавление значения функции к сумме
-            }
-
-            double I = (h / 3.0) * sum;
-            return I;
-        }
-
-        public override List<FunctionSeries> GetFunctionsToShow()
-        {
-            return new List<FunctionSeries>()
-            {
-                new FunctionSeries(f,a,b,0.1,"f(x)"),
-                new FunctionSeries(f,a,b,fixedn,"f(x)"),
-                new FunctionSeries(f,a,b,0.1,"f'(x)"),
-                new FunctionSeries(f_double_prime,a,b,0.1,"f''(x)"),
-                new FunctionSeries(f_fourth_prime,a,b,0.1,"f''''(x)"),
-            };
-        }
-    }
-
-    public class I_IV : Number61
-    {
-        public I_IV()
-        {
-            this.Num = "6.1.4";
-            this.UI_StartInfo = new object[]
-            {
-                new Image()
-                {
-                    Source = ImageSource.FromFile("n6_1.png"),
-                },
-                new Label {
-                    Text = "Используя формулы интерполяционного типа, вычислите интеграл. Оцените погрешность." ,
-                    FontAttributes = FontAttributes.Bold,
-                },
-                new Label {
-                    Text = $"a = {a}, b = {b}",
-                    FontAttributes = FontAttributes.None,
-                },
-            };
-        }
-
-        public override string[] Execute()
-        {
-            List<string> consoleStack = new List<string>();
-
-            int n = fixedn;
-            double h = (b - a) / n;
-            double[] xarr = new double[n];
-            double[] yarr = new double[n];
-            for (int i = 0; i < n; i++)
-            {
-                double x = a + i * h;
-                xarr[i] = x;
-                double y = f(x);
-                yarr[i] = y;
-            }
-
-            double sum = 0;
-            for (int i = 0; i < n; i++)
-            {
-                double xi = a + i * h; // вычисление i-го узла
-                double fxi = f(xi); // вычисление значения функции в узле xi
-                double wx = 1;
-                for (int k = 0; k < n; k++)
-                {
-                    wx *= (xarr[i] - xarr[k]);
-                }
-                sum += (fxi
-                    * wx
-                    / ((xi - xarr[i]) * f_prime(xarr[i]))
-                    ); // добавление значения функции к сумме
-            }
-
-            double ideal = 0.4244010922027635;
-            consoleStack.Add($"n = {fixedn}:");
-            consoleStack.Add($"I = {sum}");
-            consoleStack.Add("");
-            consoleStack.Add($"Идеал ~E-15:");
-            consoleStack.Add($"I = {ideal}");
-            return consoleStack.ToArray();
-        }
-    }
-
-    public class I_IV_2 : Number61
-    {
-        public I_IV_2()
-        {
-            this.Num = "6.1.4 (v2)";
-            this.UI_StartInfo = new object[]
-            {
-                new Image()
-                {
-                    Source = ImageSource.FromFile("n6_1.png"),
-                },
-                new Label {
-                    Text = "Используя формулы интерполяционного типа, вычислите интеграл. Оцените погрешность." ,
-                    FontAttributes = FontAttributes.Bold,
-                },
-                new Label {
-                    Text = $"a = {a}, b = {b}",
-                    FontAttributes = FontAttributes.None,
-                },
-            };
-        }
-
-        public override string[] Execute()
-        {
-            List<string> consoleStack = new List<string>();
-            /*double ideal = 0.4244010922027635;
-
-            int n = 4;
-            double[] xi = new double[n];
-            xi[0] = a;
-            double h = (b - a) / n;
-            for (int i = 1; i < n; i++)
-            {
-                xi[i] = xi[i - 1] + h;
-            }
-            Variable x = new Variable();
-            Variable y = new Variable();
-            Term func = TermBuilder.Product(x - xi[k]) * TermBuilder.Log(TermBuilder.Exp(x) + TermBuilder.Exp(y));
-            while (delta > eps)
-            {
-                double res1 = Count(n);
-                n *= 2;
-                double res2 = Count(n);
-                delta = Math.Abs(res1 - res2);
-                consoleStack.Add($"n = {n} => delta = {delta}:");
-                consoleStack.Add($"I = {res2 + delta}");
-                consoleStack.Add("");
-            }
-
-            consoleStack.Add($"Идеал ~E-15:");
-            consoleStack.Add($"I = {ideal}");*/
-            return consoleStack.ToArray();
-        }
-
-        public double GetW(double x, int n, double[] xi)
-        {
-            double p = 1;
-            for (int k = 0; k < n; k++)
-            {
-                p *= (x - xi[k]);
-            }
-            return p;
-        }
-
-        public double Count(int n = 55555)
-        {
-            double h = (b - a) / n;
-            double sum = f(a);
-            for (int i = 1; i < n; i++)
-            {
-                double xi = a + (i - 0.5) * h; // вычисление i-го узла
-                double fxi = f(xi); // вычисление значения функции в узле xi
-                sum += fxi; // добавление значения функции к сумме
-            }
-            double I = h * sum;
-            return I;
-        }
-    }
-    public class I_V : Number61
-    {
-        public I_V()
-        {
-            this.Num = "6.1.5";
-            this.UI_StartInfo = new object[]
-            {
-
-            };
-        }
-
-        public override string[] Execute()
-        {
-            return new string[] { };
-        }
-
-        public override List<FunctionSeries> GetFunctionsToShow()
-        {
-            return new List<FunctionSeries>()
-            {
-                new FunctionSeries(f,a,b,0.1,"f(x)"),
-                new FunctionSeries(f,a,b,fixedn,"f(x)"),
-                new FunctionSeries(f,a,b,0.1,"f'(x)"),
-                new FunctionSeries(f_double_prime,a,b,0.1,"f''(x)"),
-                new FunctionSeries(f_fourth_prime,a,b,0.1,"f''''(x)"),
-            };
-        }
-    }
-
-    public class I_VI : Number61
-    {
-        public I_VI()
-        {
-            this.Num = "6.1.6";
-            this.UI_StartInfo = new object[]
-            {
-
-            };
-        }
-
-        public override string[] Execute()
-        {
-            return new string[] { };
-        }
-
-        public override List<FunctionSeries> GetFunctionsToShow()
-        {
-            return new List<FunctionSeries>()
-            {
-                new FunctionSeries(f,a,b,0.1,"f(x)"),
-                new FunctionSeries(f,a,b,fixedn,"f(x)"),
-                new FunctionSeries(f,a,b,0.1,"f'(x)"),
-                new FunctionSeries(f_double_prime,a,b,0.1,"f''(x)"),
-                new FunctionSeries(f_fourth_prime,a,b,0.1,"f''''(x)"),
-            };
-        }
-    }
-
-    public class I_VII : Number61
-    {
-        public I_VII()
-        {
-            this.Num = "6.1.7";
-            this.UI_StartInfo = new object[]
-            {
-
-            };
-        }
-
-        public override string[] Execute()
-        {
-            return new string[] { };
-        }
-
-        public override List<FunctionSeries> GetFunctionsToShow()
-        {
-            return new List<FunctionSeries>()
-            {
-                new FunctionSeries(f,a,b,0.1,"f(x)"),
-                new FunctionSeries(f,a,b,fixedn,"f(x)"),
-                new FunctionSeries(f,a,b,0.1,"f'(x)"),
-                new FunctionSeries(f_double_prime,a,b,0.1,"f''(x)"),
-                new FunctionSeries(f_fourth_prime,a,b,0.1,"f''''(x)"),
-            };
-        }
-    }
-    public class I_VIII : Number61
-    {
-        public I_VIII()
-        {
-            this.Num = "6.1.8";
-            this.UI_StartInfo = new object[]
-            {
-
-            };
-        }
-
-        public override string[] Execute()
-        {
-            return new string[] { };
-        }
-    }
-
-    public class II_I : Number62
-    {
-        public II_I()
-        {
-            this.Num = "6.2.1";
-            this.UI_StartInfo = new object[]
-            {
-                new Image()
-                {
-                    Source = ImageSource.FromFile("n6_2.png"),
-                },
-                new Label {
-                    Text = "Решите задачу Коши методом последовательных приближений (Пикара)" ,
-                    FontAttributes = FontAttributes.Bold,
-                },
-                new Label {
-                    Text = $"a = {a}, b = {b}",
-                    FontAttributes = FontAttributes.None,
-                },
-            };
-        }
-
-        public override string[] Execute()
-        {
-            int n = 10;
-            double h = (b - a) / n;
-            double[] x = new double[n];
-            for (int i = 0; i < n; i++)
-            {
-                x[i] = a + i * h;
-            }
-            double[] y = new double[n];
-            y[0] = 0;
-            for (int j = 1; j < n; j++)
-            {
-                y[j] = y0 + Math.Ceiling(f(x[j], y[j - 1]));
-            }
-            return new string[] { };
-        }
-    }
-
-    public class II_II : Number62
-    {
-        public II_II()
-        {
-            this.Num = "6.2.2";
-
-            this.UI_StartInfo = new object[]
-            {
-
-            };
-
-        }
-
-        public override string[] Execute()
-        {
-            return new string[] { };
-        }
+        */
     }
 }

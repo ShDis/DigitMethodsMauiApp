@@ -1,4 +1,4 @@
-﻿namespace DigitMethodsMauiApp
+﻿namespace DigitMethodsMauiApp.Numbers
 {
     public class Number62 : Number6
     {
