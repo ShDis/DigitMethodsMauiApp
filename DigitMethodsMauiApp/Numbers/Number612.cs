@@ -11,6 +11,64 @@ namespace DigitMethodsMauiApp.Numbers
     {
         public Number612(int variant = 1, int stepsCount = 2, double eps = 0.001) : base(variant, stepsCount, eps) { }
         public override string NumberName => "6.1.2";
+        public override object[] Content
+        {
+            get
+            {
+                List<string> consoleStack = new List<string>();
+                double ideal = IntegrateIdeal;
+
+                consoleStack.Add($"Расчет с удвоением шагов:");
+                consoleStack.Add("");
+
+                int n = 1;
+                double delta = 1.0;
+                while (delta > Eps)
+                {
+                    double res1 = SolveIntegralTrapez(n);
+                    n *= 2;
+                    double res2 = SolveIntegralTrapez(n);
+                    delta = Math.Abs((res1 - res2) / 3.0);
+                    consoleStack.Add($"n = {n} => delta = {delta}:");
+                    consoleStack.Add($"I = {res2 + delta}");
+                    consoleStack.Add("");
+                }
+                consoleStack.Add($"Идеал для сравнения:");
+                consoleStack.Add($"I = {ideal}");
+                consoleStack.Add("");
+                consoleStack.Add("Расчет с конкретным числом шагов:");
+                consoleStack.Add($"n = {StepsCount} => I = {SolveIntegralTrapez(StepsCount)}");
+
+                var elemsInStack = 2 + consoleStack.Count;
+                var returnStack = new object[elemsInStack];
+                returnStack[0] = new Label
+                {
+                    Text = "Определите число узлов для нахождения значения интеграла с точностью = 10^-3 по формулам трапеций. Вычислите с данной точностью.",
+                    FontAttributes = FontAttributes.Bold,
+                };
+                returnStack[1] = TaskAndAnswerSplitter;
+                for (int i = 2; i < elemsInStack; i++)
+                {
+                    returnStack[i] = TextToUI(consoleStack[i - 2]);
+                }
+
+                return returnStack;
+            }
+        }
+
+        public double SolveIntegralTrapez(int n) // Trapez
+        {
+            double h = (RightLimitB - LeftLimitA) / n;
+            double sum = 0.5 * (NumberFxFunction(LeftLimitA) + NumberFxFunction(RightLimitB));
+
+            for (int i = 1; i < n; i++)
+            {
+                sum += NumberFxFunction(LeftLimitA + (double)i * h);
+            }
+
+            double I = h * sum;
+            return I;
+        }
 
         /*
         public Number611()

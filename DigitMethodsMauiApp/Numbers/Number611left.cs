@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace DigitMethodsMauiApp.Numbers
 {
-    public class Number613 : Number61
+    public class Number611left : Number61
     {
-        public Number613(int variant = 1, int stepsCount = 2, double eps = 0.001) : base(variant, stepsCount, eps) { }
-        public override string NumberName => "6.1.3";
+        public Number611left(int variant = 1, int stepsCount = 10, double eps = 0.001) : base(variant, stepsCount, eps) { }
+        public override string NumberName => "6.1.1l";
         public override object[] Content
         {
             get
@@ -25,10 +25,10 @@ namespace DigitMethodsMauiApp.Numbers
                 double delta = 1.0;
                 while (delta > Eps)
                 {
-                    double res1 = SolveIntegralSimpson(n);
+                    double res1 = SolveIntegralRectangleLeft(n);
                     n *= 2;
-                    double res2 = SolveIntegralSimpson(n);
-                    delta = Math.Abs((res1 - res2) / 7.0);
+                    double res2 = SolveIntegralRectangleLeft(n);
+                    delta = Math.Abs(res1 - res2);
                     consoleStack.Add($"n = {n} => delta = {delta}:");
                     consoleStack.Add($"I = {res2 + delta}");
                     consoleStack.Add("");
@@ -38,13 +38,13 @@ namespace DigitMethodsMauiApp.Numbers
                 consoleStack.Add($"I = {ideal}");
                 consoleStack.Add("");
                 consoleStack.Add("Расчет с конкретным числом шагов:");
-                consoleStack.Add($"n = {StepsCount} => I = {SolveIntegralSimpson(StepsCount)}");
+                consoleStack.Add($"n = {StepsCount} => I = {SolveIntegralRectangleLeft(StepsCount)}");
 
                 var elemsInStack = 2 + consoleStack.Count;
                 var returnStack = new object[elemsInStack];
                 returnStack[0] = new Label
                 {
-                    Text = "Определите число узлов для нахождения значения интеграла с точностью = 10^-3 по формулам Симпсона. Вычислите с данной точностью.",
+                    Text = "Определите число узлов для нахождения значения интеграла с точностью = 10^-3 по формулам левых прямоугольников. Вычислите с данной точностью.",
                     FontAttributes = FontAttributes.Bold,
                 };
                 returnStack[1] = TaskAndAnswerSplitter;
@@ -56,51 +56,23 @@ namespace DigitMethodsMauiApp.Numbers
                 return returnStack;
             }
         }
-        public double SolveIntegralSimpson(int n)
+
+        public double SolveIntegralRectangleLeft(int n)
         {
             double h = (RightLimitB - LeftLimitA) / n;
-            var sum1 = 0.0;
-            var sum2 = 0.0;
-            for (var k = 1; k <= n; k++)
+            double sum = 0.0;
+            for (int i = 0; i <= n - 1; i++)
             {
-                var xk = LeftLimitA + k * h;
-                if (k <= n - 1)
-                {
-                    sum1 += NumberFxFunction(xk);
-                }
-
-                var xk_1 = LeftLimitA + (k - 1) * h;
-                sum2 += NumberFxFunction((xk + xk_1) / 2);
+                sum += NumberFxFunction(LeftLimitA + i * h);
             }
-
-            double I = h / 3.0 * (1.0 / 2.0 * NumberFxFunction(LeftLimitA) + sum1 + 2.0 * sum2 + 1.0 / 2.0 * NumberFxFunction(RightLimitB));
+            double I = h * sum;
             return I;
-
-            /*
-            double h = (RightLimitB - LeftLimitA) / n;
-            double sum = NumberFxFunction(LeftLimitA) + NumberFxFunction(RightLimitB);
-
-            for (int i = 1; i < n / 2 - 1; i++)
-            {
-                double xi = LeftLimitA + 2 * i * h; // вычисление i-го узла
-                double fxi = NumberFxFunction(xi); // вычисление значения функции в узле xi
-                sum += 2 * fxi; // добавление значения функции к сумме
-            }
-            for (int i = 1; i < n / 2; i++)
-            {
-                double xi = LeftLimitA + (2 * i - 1) * h; // вычисление i-го узла
-                double fxi = NumberFxFunction(xi); // вычисление значения функции в узле xi
-                sum += 4 * fxi; // добавление значения функции к сумме
-            }
-
-            double I = (h / 3.0) * sum;
-            return I;
-            */
         }
+
         /*
-        public I_III()
+        public I_I()
         {
-            this.Num = "6.1.3";
+            this.Num = "6.1.1";
             this.UI_StartInfo = new object[]
             {
                 new Image()
@@ -108,7 +80,7 @@ namespace DigitMethodsMauiApp.Numbers
                     Source = ImageSource.FromFile("n6_1.png"),
                 },
                 new Label {
-                    Text = "Определите число узлов для нахождения значения интеграла с точностью = 10^-3 по формулам Симпсона. Вычислите с данной точностью." ,
+                    Text = "Определите число узлов для нахождения значения интеграла с точностью = 10^-3 по формулам прямоугольников. Вычислите с данной точностью.",
                     FontAttributes = FontAttributes.Bold,
                 },
                 new Label {
@@ -121,7 +93,6 @@ namespace DigitMethodsMauiApp.Numbers
         public override string[] Execute()
         {
             List<string> consoleStack = new List<string>();
-
             double ideal = 0.4244010922027635;
             consoleStack.Add($"eps = {eps} => n = {GetN()}:");
             consoleStack.Add($"I = {Count(false)}");
@@ -133,11 +104,11 @@ namespace DigitMethodsMauiApp.Numbers
             consoleStack.Add($"I = {ideal}");
             return consoleStack.ToArray();
         }
+
         public int GetN()
         {
-            double approxh = Math.Pow((2880.0 * eps) / ((b - a) * M4), 0.25);
+            double approxh = Math.Pow((24.0 * eps) / ((b - a) * M2), 1.0 / 2.0);
             int n = (int)Math.Ceiling((b - a) / approxh);
-            n = n % 2 == 0 ? n : n + 1;
             return n;
         }
         public double Count(bool useFixedn, int n = 10)
@@ -148,16 +119,15 @@ namespace DigitMethodsMauiApp.Numbers
             }
 
             double h = (b - a) / n;
-            double sum = f(a) + f(b);
+            double sum = f(a);
 
-            for (int i = 1; i < n - 1; i++)
+            for (int i = 1; i < n; i++)
             {
-                double xi = a + i * h; // вычисление i-го узла
+                double xi = a + (i - 0.5) * h; // вычисление i-го узла
                 double fxi = f(xi); // вычисление значения функции в узле xi
-                sum += (i % 2 == 0 ? 2 : 4) * fxi; // добавление значения функции к сумме
+                sum += fxi; // добавление значения функции к сумме
             }
-
-            double I = (h / 3.0) * sum;
+            double I = h * sum;
             return I;
         }
 
@@ -175,9 +145,9 @@ namespace DigitMethodsMauiApp.Numbers
         */
 
         /*
-        public I_III_2()
+        public I_I_2()
         {
-            this.Num = "6.1.3 (v2)";
+            this.Num = "6.1.1 (v2)";
             this.UI_StartInfo = new object[]
             {
                 new Image()
@@ -185,7 +155,7 @@ namespace DigitMethodsMauiApp.Numbers
                     Source = ImageSource.FromFile("n6_1.png"),
                 },
                 new Label {
-                    Text = "Определите число узлов для нахождения значения интеграла с точностью = 10^-3 по формулам Симпсона. Вычислите с данной точностью." ,
+                    Text = "Определите число узлов для нахождения значения интеграла с точностью = 10^-3 по формулам прямоугольников. Вычислите с данной точностью.",
                     FontAttributes = FontAttributes.Bold,
                 },
                 new Label {
@@ -221,22 +191,14 @@ namespace DigitMethodsMauiApp.Numbers
         public double Count(int n)
         {
             double h = (b - a) / n;
-            double sum = f(a) + f(b);
-
-            for (int i = 1; i < n / 2 - 1; i++)
+            double sum = f(a);
+            for (int i = 1; i < n; i++)
             {
-                double xi = a + 2 * i * h; // вычисление i-го узла
+                double xi = a + (i - 0.5) * h; // вычисление i-го узла
                 double fxi = f(xi); // вычисление значения функции в узле xi
-                sum += 2 * fxi; // добавление значения функции к сумме
+                sum += fxi; // добавление значения функции к сумме
             }
-            for (int i = 1; i < n / 2; i++)
-            {
-                double xi = a + (2 * i - 1) * h; // вычисление i-го узла
-                double fxi = f(xi); // вычисление значения функции в узле xi
-                sum += 4 * fxi; // добавление значения функции к сумме
-            }
-
-            double I = (h / 3.0) * sum;
+            double I = h * sum;
             return I;
         }
 
@@ -252,6 +214,5 @@ namespace DigitMethodsMauiApp.Numbers
             };
         }
         */
-
     }
 }

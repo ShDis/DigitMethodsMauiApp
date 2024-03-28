@@ -7,45 +7,68 @@ using System.Threading.Tasks;
 
 namespace DigitMethodsMauiApp.Numbers
 {
-    public class Number611 : Number61
+    public class Number611right : Number61
     {
-        public Number611(int variant = 1, int stepsCount = 2, double eps = 0.001) : base(variant, stepsCount, eps) {}
-        public override string NumberName => "6.1.1";
+        public Number611right(int variant = 1, int stepsCount = 10, double eps = 0.001) : base(variant, stepsCount, eps) { }
+        public override string NumberName => "6.1.1r";
         public override object[] Content
         {
             get
             {
                 List<string> consoleStack = new List<string>();
-                /*double ideal = 0.4244010922027635;
-                consoleStack.Add($"eps = {Eps} => n = {StepsCount}:");
-                consoleStack.Add($"I = {Count(false)}");
+                double ideal = IntegrateIdeal;
+
+                consoleStack.Add($"Расчет с удвоением шагов:");
                 consoleStack.Add("");
-                consoleStack.Add($"n = {fixedn} => eps = {Math.Abs(ideal - Count(true, fixedn))}:");
-                consoleStack.Add($"I = {Count(true, fixedn)}");
-                consoleStack.Add("");
-                consoleStack.Add($"Идеал ~E-15:");
-                consoleStack.Add($"I = {ideal}");
-                */
-                return new object[] 
+
+                int n = 1;
+                double delta = 1.0;
+                while (delta > Eps)
                 {
-                    new Label {
-                    Text = "Определите число узлов для нахождения значения интеграла с точностью = 10^-3 по формулам прямоугольников. Вычислите с данной точностью.",
+                    double res1 = SolveIntegralRectangleRight(n);
+                    n *= 2;
+                    double res2 = SolveIntegralRectangleRight(n);
+                    delta = Math.Abs(res1 - res2);
+                    consoleStack.Add($"n = {n} => delta = {delta}:");
+                    consoleStack.Add($"I = {res2 + delta}");
+                    consoleStack.Add("");
+                }
+
+                consoleStack.Add($"Идеал для сравнения:");
+                consoleStack.Add($"I = {ideal}");
+                consoleStack.Add("");
+                consoleStack.Add("Расчет с конкретным числом шагов:");
+                consoleStack.Add($"n = {StepsCount} => I = {SolveIntegralRectangleRight(StepsCount)}");
+
+                var elemsInStack = 2 + consoleStack.Count;
+                var returnStack = new object[elemsInStack];
+                returnStack[0] = new Label
+                {
+                    Text = "Определите число узлов для нахождения значения интеграла с точностью = 10^-3 по формулам правых прямоугольников. Вычислите с данной точностью.",
                     FontAttributes = FontAttributes.Bold,
-                    },
-                    TaskAndAnswerSplitter,
-                    TextToUI(consoleStack.ToArray()),
                 };
+                returnStack[1] = TaskAndAnswerSplitter;
+                for (int i = 2; i < elemsInStack; i++)
+                {
+                    returnStack[i] = TextToUI(consoleStack[i - 2]);
+                }
+
+                return returnStack;
             }
         }
 
-        public override List<FunctionSeries> GetFunctionsToShow()
+        public double SolveIntegralRectangleRight(int n)
         {
-            return new List<FunctionSeries>()
+            double h = (RightLimitB - LeftLimitA) / n;
+            double sum = 0.0;
+            for (int i = 1; i <= n; i++)
             {
-                new FunctionSeries(NumberFxFunction,LeftLimitA,RightLimitB,0.1,"f(x)"),
-                new FunctionSeries(NumberFxFunction,LeftLimitA,RightLimitB,0.01,"f(x)"),
-            };
+                sum += NumberFxFunction(LeftLimitA + i * h);
+            }
+            double I = h * sum;
+            return I;
         }
+
         /*
         public I_I()
         {

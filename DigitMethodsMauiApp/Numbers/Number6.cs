@@ -21,13 +21,17 @@ namespace DigitMethodsMauiApp.Numbers
         {
             get
             {
-                return
-                    new Label()
-                    {
-                        Text = "Результат",
-                        FontSize = 32,
-                        Padding = new Thickness(0.0, 16.0, 0.0, 16.0)
-                    };
+                //var b = new Border()
+                //{
+                //    BackgroundColor = Color.FromRgb(255, 230, 230),
+                //};
+                var l = new Label()
+                {
+                    Text = "Результат",
+                    FontSize = 32,
+                    Padding = new Thickness(0.0, 16.0, 0.0, 16.0),
+                };
+                return l;
             }
         }
         protected virtual Label[] TextToUI(string[] text)

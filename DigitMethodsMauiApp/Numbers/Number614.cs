@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AutoDiff;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,79 @@ namespace DigitMethodsMauiApp.Numbers
     {
         public Number614(int variant = 1, int stepsCount = 2, double eps = 0.001) : base(variant, stepsCount, eps) { }
         public override string NumberName => "6.1.4";
+        public override object[] Content
+        {
+            get
+            {
+                List<string> consoleStack = new List<string>();
+                double ideal = IntegrateIdeal;
+                /*
+                int n = 4;
+                double[] xi = new double[n];
+                xi[0] = a;
+                double h = (b - a) / n;
+                for (int i = 1; i < n; i++)
+                {
+                    xi[i] = xi[i - 1] + h;
+                }
+                Variable x = new Variable();
+                Variable y = new Variable();
+                Term func = TermBuilder.Product(x - xi[k]) * TermBuilder.Log(TermBuilder.Exp(x) + TermBuilder.Exp(y));
+                while (delta > eps)
+                {
+                    double res1 = Count(n);
+                    n *= 2;
+                    double res2 = Count(n);
+                    delta = Math.Abs(res1 - res2);
+                    consoleStack.Add($"n = {n} => delta = {delta}:");
+                    consoleStack.Add($"I = {res2 + delta}");
+                    consoleStack.Add("");
+                }
+
+                consoleStack.Add($"Идеал ~E-15:");
+                consoleStack.Add($"I = {ideal}"); 
+                */
+
+                var elemsInStack = 2 + consoleStack.Count;
+                var returnStack = new object[elemsInStack];
+                returnStack[0] = new Label
+                {
+                    Text = "Используя формулы интерполяционного типа, вычислите интеграл. Оцените погрешность.",
+                    FontAttributes = FontAttributes.Bold,
+                };
+                returnStack[1] = TaskAndAnswerSplitter;
+                for (int i = 2; i < elemsInStack; i++)
+                {
+                    returnStack[i] = TextToUI(consoleStack[i - 2]);
+                }
+
+                return returnStack;
+            }
+        }
+        public double GetW(double x, int n, double[] xi)
+        {
+            double p = 1;
+            for (int k = 0; k < n; k++)
+            {
+                p *= (x - xi[k]);
+            }
+            return p;
+        }
+        /*
+        public double Count(int n = 55555)
+        {
+            double h = (b - a) / n;
+            double sum = f(a);
+            for (int i = 1; i < n; i++)
+            {
+                double xi = a + (i - 0.5) * h; // вычисление i-го узла
+                double fxi = f(xi); // вычисление значения функции в узле xi
+                sum += fxi; // добавление значения функции к сумме
+            }
+            double I = h * sum;
+            return I;
+        }*/
+
         /*
         public I_IV()
         {

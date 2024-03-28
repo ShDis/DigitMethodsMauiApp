@@ -9,7 +9,7 @@ namespace DigitMethodsMauiApp
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        Number61 number = new Number611();
+        Number61 number = new Number611left();
 
         public void OnPropertyChanged([CallerMemberName] string prop = "")
         {
